@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: httpd
+spec:
+  containers:
+    - name: httpd-container
+      image: registry.hub.docker.com/library/httpd
+
+# default page in: /usr/local/apache2/htdocs/index.html

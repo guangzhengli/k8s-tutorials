@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellodeployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hellodeployment
+  template:
+    metadata:
+      labels:
+        app: hellodeployment
+    spec:
+      containers:
+        - name: hellodeployment-container
+          image: guangzhengli/busybox:v1
