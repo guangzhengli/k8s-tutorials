@@ -14,4 +14,4 @@ spec:
     spec:
       containers:
         - name: hellodeployment-container
-          image: guangzhengli/busybox:v1
+          image: guangzhengli/busybox:v2
