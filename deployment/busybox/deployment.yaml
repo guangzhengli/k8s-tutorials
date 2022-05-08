@@ -3,6 +3,10 @@ kind: Deployment
 metadata:
   name: hellodeployment
 spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   replicas: 3
   selector:
     matchLabels:
