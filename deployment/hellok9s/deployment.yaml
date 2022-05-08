@@ -3,7 +3,11 @@ kind: Deployment
 metadata:
   name: hellok8s
 spec:
-  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 3
   selector:
     matchLabels:
       app: hellok8s
@@ -13,5 +17,5 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:v1
+      - image: guangzhengli/hellok8s:v2
         name: hellok8s-container
