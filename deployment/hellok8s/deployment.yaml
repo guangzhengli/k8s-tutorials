@@ -17,11 +17,5 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:bad
+      - image: guangzhengli/hellok8s:v3
         name: hellok8s-container
-        readinessProbe: # New readiness probe
-          periodSeconds: 1
-          successThreshold: 5
-          httpGet:
-            path: /
-            port: 4567
