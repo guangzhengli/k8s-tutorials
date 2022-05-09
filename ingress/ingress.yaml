@@ -8,7 +8,8 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-    - http:
+    - host: nginx.local.com
+      http:
         paths:
           - path: /
             pathType: Prefix
@@ -17,7 +18,11 @@ spec:
                 name: nginx-svc
                 port:
                   number: 1234
-          - path: /hello
+
+    - host: hello.local.com
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
