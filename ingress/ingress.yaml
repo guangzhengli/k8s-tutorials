@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-ingress
+  annotations:
+    # We are defining this annotation to prevent nginx
+    # from redirecting requests to `https` for now
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-svc
+                port:
+                  number: 1234
+          - path: /hello
+            pathType: Prefix
+            backend:
+              service:
+                name: hellok8s-svc
+                port:
+                  number: 4567

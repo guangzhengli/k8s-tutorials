@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hellok8s-svc
+spec:
+  selector:
+    app: hellok8s
+  ports:
+  - port: 4567
+    targetPort: 4567
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+      - image: guangzhengli/hellok8s:v3
+        name: hellok8s-container
