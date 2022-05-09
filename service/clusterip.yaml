@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clusterip-svc
+spec:
+  type: ClusterIP # optional
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx-container
+      image: registry.hub.docker.com/library/nginx
