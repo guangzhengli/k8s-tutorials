@@ -26,12 +26,13 @@ spec:
       labels:
         app: hellok8s
     spec:
+      volumes:
+        - name: config
+          configMap:
+            name: hellok8s-config
       containers:
         - image: guangzhengli/hellok8s:v4
           name: hellok8s-container
-          env:
-            - name: MESSAGE
-              valueFrom:
-                configMapKeyRef:
-                  name: hellok8s-config
-                  key: MESSAGE
+          volumeMounts:
+          - name: config
+            mountPath: /config
