@@ -6,23 +6,15 @@ metadata:
     # We are defining this annotation to prevent nginx
     # from redirecting requests to `https` for now
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~ / {
+         rewrite / https://www.github.com$uri permanent;
+      }
 spec:
   rules:
-    - host: nginx.local.com
-      http:
+    - http:
         paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: nginx-svc
-                port:
-                  number: 1234
-
-    - host: hello.local.com
-      http:
-        paths:
-          - path: /
+          - path: /hello
             pathType: Prefix
             backend:
               service:
