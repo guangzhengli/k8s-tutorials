@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hellok8s-config
+data:
+  MESSAGE: "It works with a ConfigMap!"
