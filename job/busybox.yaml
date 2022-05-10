@@ -1,0 +1,13 @@
+# echo-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: echo-job
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: echo
+          image: busybox
+          command: ["echo", "Running in a job"]
