@@ -1,9 +1,10 @@
-# echo-job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: echo-job
 spec:
+  parallelism: 3
+  completions: 5
   template:
     spec:
       restartPolicy: OnFailure
