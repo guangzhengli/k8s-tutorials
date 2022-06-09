@@ -10,6 +10,13 @@ spec:
   rules:
     - http:
         paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-svc
+                port:
+                  number: 1234
           - path: /hello
             pathType: Prefix
             backend:

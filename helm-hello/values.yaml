@@ -1,0 +1,2 @@
+hellok8s:
+  message: "It works with a Helm ConfigMap!"
