@@ -124,8 +124,8 @@ metadata:
   name: nginx
 spec:
   containers:
-  - name: nginx-container
-    image: nginx
+    - name: nginx-container
+      image: nginx
 ```
 
 ```shell
@@ -176,8 +176,8 @@ metadata:
   name: hellok8s
 spec:
   containers:
-  - name: hellok8s-container
-    image: guangzhengli/hellok8s:v1
+    - name: hellok8s-container
+      image: guangzhengli/hellok8s:v1
 ```
 
 ```
@@ -203,8 +203,8 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:v1
-        name: hellok8s-container
+        - image: guangzhengli/hellok8s:v1
+          name: hellok8s-container
 ```
 
 ```
@@ -229,7 +229,7 @@ kubectl get pods
 # hellok8s-6678f66cb8-8nqf2   1/1     Running   0
 ```
 
-```
+```yaml
 # deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -258,12 +258,12 @@ get "*" do
 end
 ```
 
-```
+```shell
 docker build . -t guangzhengli/hellok8s:v2
 docker push guangzhengli/hellok8s:v2
 ```
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -283,7 +283,7 @@ spec:
         name: hellok8s-container
 ```
 
-```
+```shell
 kubectl get pods
 # NAME                        READY   STATUS
 # hellok8s-6678f66cb8-52zt9   1/1     Running
@@ -299,7 +299,7 @@ curl http://localhost:4567
 
 ### Rolling Update
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -319,11 +319,11 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: brianstorti/hellok8s:v2
+      - image: guangzhengli/hellok8s:v2
         name: hellok8s-container
 ```
 
-```
+```ruby
 require "sinatra"
 
 set :bind, "0.0.0.0"
@@ -345,7 +345,7 @@ docker build . -t guangzhengli/hellok8s:bad
 docker push guangzhengli/hellok8s:bad
 ```
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -365,7 +365,7 @@ spec:
         name: hellok8s-container
 ```
 
-```
+```shell
 kubectl rollout history deployment hellok8s
 kubectl rollout undo deployment hellok8s
 kubectl rollout undo deployment/hellok8s --to-revision=2
@@ -373,7 +373,7 @@ kubectl rollout undo deployment/hellok8s --to-revision=2
 
 ### Automatically blocking bad releases by readinessProbe
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -399,7 +399,7 @@ spec:
             port: 4567
 ```
 
-```
+```shell
 kubectl describe pod hellok8s-68f47f657c-zwn6g
 
 # ...
@@ -411,7 +411,7 @@ kubectl describe pod hellok8s-68f47f657c-zwn6g
 
 ## Service
 
-```
+```yaml
 # service.yaml
 apiVersion: v1
 kind: Service
@@ -430,7 +430,7 @@ spec:
 kubectl apply -f service.yaml
 ```
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -454,7 +454,7 @@ spec:
 kubectl get service hellok8s-svc
 ```
 
-```
+```ruby
 #app.rb
 require "sinatra"
 
@@ -470,7 +470,7 @@ docker build . -t guangzhengli/hellok8s:v3
 docker push guangzhengli/hellok8s:v3
 ```
 
-```
+```shell
 kubectl apply -f deployment.yaml
 
 curl http://localhost:30001
@@ -482,4 +482,482 @@ curl http://localhost:30001
 curl http://localhost:30001
 # [v3] Hello, Kubernetes, from hellok8s-7f4c57d446-t9ngx!
 ```
+
+## ingress
+
+```shell
+minikube addons enable ingress
+
+kubectl delete deployment,service --all
+```
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hellok8s-svc
+spec:
+  selector:
+    app: hellok8s
+  ports:
+  - port: 4567
+    targetPort: 4567
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+      - image: guangzhengli/hellok8s:v3
+        name: hellok8s-container
+```
+
+```yaml
+# nginx.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 1234
+    targetPort: 80
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx-container
+```
+
+```shell
+kubectl apply -f hellok8s.yaml
+# service/hellok8s-svc created
+# deployment.apps/hellok8s created
+
+kubectl apply -f nginx.yaml
+# service/nginx-svc created
+# deployment.apps/nginx created
+
+kubectl get pods
+# NAME                        READY   STATUS    RESTARTS 
+# hellok8s-7f4c57d446-6c8b8   1/1     Running   0        
+# hellok8s-7f4c57d446-jkqbl   1/1     Running   0        
+# nginx-77c5c66899-dgkk2      1/1     Running   0        
+# nginx-77c5c66899-w9srw      1/1     Running   0        
+
+kubectl get service
+# NAME           TYPE        CLUSTER-IP       PORT(S)   
+# hellok8s-svc   ClusterIP   10.102.242.233   4567/TCP  
+# nginx-svc      ClusterIP   10.96.19.78      1234/TCP
+```
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-ingress
+  annotations:
+    # We are defining this annotation to prevent nginx
+    # from redirecting requests to `https` for now
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-svc
+                port:
+                  number: 1234
+          - path: /hello
+            pathType: Prefix
+            backend:
+              service:
+                name: hellok8s-svc
+                port:
+                  number: 4567
+```
+
+```shell
+kubectl apply -f ingress.yaml
+# ingress.extensions/hello-ingress created
+
+kubectl get ingress
+# NAME            HOSTS   ADDRESS     PORTS   AGE
+# hello-ingress   *       localhost   80      1m
+```
+
+```shell
+kubectl apply -f ingress.yaml
+# ingress.extensions/hello-ingress configured
+
+curl http://localhost/hello
+# [v3] Hello, Kubernetes, from hellok8s-7f4c57d446-qth54!
+
+curl http://localhost
+# (nginx welcome page)
+```
+
+## Configmap
+
+### env var
+
+```ruby
+require "sinatra"
+
+set :bind, "0.0.0.0"
+
+get "*" do
+  message = ENV.fetch("MESSAGE", "Hello, Kubernetes")
+  "[v4] #{message} (from #{`hostname`.strip})\n"
+end
+```
+
+```
+docker build . -t guangzhengli/hellok8s:v4
+docker push guangzhengli/hellok8s:v4
+
+kubectl delete deployment,service,ingress --all
+```
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hellok8s-svc
+spec:
+  type: NodePort
+  selector:
+    app: hellok8s
+  ports:
+  - port: 4567
+    nodePort: 30001
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+      - image: guangzhengli/hellok8s:v4
+        name: hellok8s-container
+```
+
+```shell
+kubectl apply -f hellok8s.yaml 
+
+curl localhost:30001
+# [v4] Hello, Kubernetes (from hellok8s-69dbd44879-vt8dv)
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+      - image: guangzhengli/hellok8s:v4
+        name: hellok8s-container
+        env:
+          - name: MESSAGE
+            value: "It works!"
+```
+
+```shell
+kubectl apply -f hellok8s.yaml 
+
+curl localhost:30001
+# [v4] It works! (from hellok8s-568f64dd94-bfxhs)
+```
+
+### configmap
+
+```yaml
+# hellok8s-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hellok8s-config
+data:
+  MESSAGE: "It works with a ConfigMap!"
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+      - image: guangzhengli/hellok8s:v4
+        name: hellok8s-container
+        env:
+          - name: MESSAGE
+            valueFrom:
+              configMapKeyRef:
+                name: hellok8s-config
+                key: MESSAGE
+```
+
+```shell
+kubectl apply -f hellok8s-config.yaml
+
+kubectl apply -f hellok8s.yaml
+
+kubectl apply -f service.yaml
+
+curl localhost:30001
+# [v4] It works with a ConfigMap! (from hellok8s-54d5fb5765-nl62z)
+```
+
+### Getting all the variables from a ConfigMap
+
+```
+env:
+  - name: VAR1
+    valueFrom:
+      configMapKeyRef:
+        name: hellok8s-config
+        key: VAR1
+
+  - name: VAR2
+    valueFrom:
+      configMapKeyRef:
+        name: hellok8s-config
+        key: VAR2
+
+  - name: VAR3
+    valueFrom:
+      configMapKeyRef:
+        name: hellok8s-config
+        key: VAR3
+# ...
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+      - image: guangzhengli/hellok8s:v4
+        name: hellok8s-container
+        envFrom:
+          - configMapRef:
+              name: hellok8s-config
+```
+
+```
+kubectl apply -f hellok8s-updated.yaml
+
+curl localhost:30001
+# [v4] It works with a ConfigMap! (from hellok8s-54d5fb5765-nl62z)
+```
+
+### Exposing ConfigMap as files
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      volumes:
+       - name: config
+         configMap:
+           name: hellok8s-config
+      containers:
+      - image: guangzhengli/hellok8s:v4
+        name: hellok8s-container
+        volumeMounts:
+        - name: config
+          mountPath: /config
+```
+
+```shell
+kubectl apply -f hellok8s.yaml
+kubectl apply -f hellok8s-config.yaml
+
+kubectl get pods
+# NAME                       READY   STATUS
+# hellok8s-8c56675c9-7gxpv   1/1     Running
+# hellok8s-8c56675c9-bfk8t   1/1     Running
+
+# Replace the pod name to what you have running locally
+kubectl exec -it hellok8s-8c56675c9-7gxpv -- sh
+cat /config/MESSAGE
+# It works with a ConfigMap!
+```
+
+## Secret
+
+```yaml
+# hellok8s-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hellok8s-secret
+data:
+  SECRET_MESSAGE: "SXQgd29ya3Mgd2l0aCBhIFNlY3JldAo="
+```
+
+```
+echo 'It works with a Secret' | base64
+# SXQgd29ya3Mgd2l0aCBhIFNlY3JldAo=
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+      - image: guangzhengli/hellok8s:v4
+        name: hellok8s-container
+        env:
+          - name: MESSAGE
+            valueFrom:
+              secretKeyRef:
+                name: hellok8s-secret
+                key: SECRET_MESSAGE
+```
+
+```shell
+kubectl apply -f hellok8s-secret.yaml
+kubectl apply -f deployment.yaml
+
+kubectl get pods
+# NAME                        READY   STATUS
+# hellok8s-6d7579848d-f56wb   1/1     Running
+# hellok8s-6d7579848d-kzq57   1/1     Running
+
+# Replace the pod name to what you have running locally
+kubectl exec -it hellok8s-6d7579848d-kzq57 --  env | grep MESSAGE
+# MESSAGE=It works with a Secret
+```
+
+### Using stringData
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hellok8s-secret
+stringData:
+  SECRET_MESSAGE: "It works with a Secret"
+```
+
+```shell
+kubectl get secret hellok8s-secret -o yaml
+
+# apiVersion: v1
+# kind: Secret
+# data:
+#   SECRET_MESSAGE: SXQgd29ya3Mgd2l0aCBhIFNlY3JldAo=
+# ...
+```
+
+## helm
+
+```shell
+helm create helm-hello
+
+helm upgrade --install hello-helm --values values.yaml .
+
+helm list
+
+helm rollback hello-helm
+```
+
+
 
