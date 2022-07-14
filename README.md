@@ -72,6 +72,12 @@ brew install kubectl
 brew install k9s
 ```
 
+如果需要练习 helm 的使用，可以先安装 helm
+
+```bash
+brew install helm
+```
+
 ### 注册 docker hub 账号登录
 
 在 docker hun(https://hub.docker.com/) 中注册账号，并且使用 login 登录账号。
