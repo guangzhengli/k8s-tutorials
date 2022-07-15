@@ -1,6 +1,27 @@
 # Kubenates workshop
 
-[toc]
+* [Kubenates workshop](#kubenates-workshop)
+    * [准备工作](#准备工作)
+        * [安装 docker](#安装-docker)
+        * [安装 minikube](#安装-minikube)
+        * [安装 k8s CLI 和 Terminal based UI](#安装-k8s-cli-和-terminal-based-ui)
+        * [注册 docker hub 账号登录](#注册-docker-hub-账号登录)
+    * [Container](#container)
+    * [Pod](#pod)
+    * [Deployment](#deployment)
+        * [release new verison](#release-new-verison)
+        * [Rolling Update](#rolling-update)
+        * [Automatically blocking bad releases by readinessProbe](#automatically-blocking-bad-releases-by-readinessprobe)
+    * [Service](#service)
+    * [ingress](#ingress)
+    * [Configmap](#configmap)
+        * [env var](#env-var)
+        * [configmap](#configmap-1)
+        * [Getting all the variables from a ConfigMap](#getting-all-the-variables-from-a-configmap)
+        * [Exposing ConfigMap as files](#exposing-configmap-as-files)
+    * [Secret](#secret)
+        * [Using stringData](#using-stringdata)
+    * [helm](#helm)
 
 ## 准备工作
 
@@ -211,11 +232,6 @@ spec:
       containers:
         - image: guangzhengli/hellok8s:v1
           name: hellok8s-container
-```
-
-```
-# replace the pod name to what you have running locally
-kubectl port-forward hellok8s-6678f66cb8-42jtr 4567:4567
 ```
 
 ```shell
