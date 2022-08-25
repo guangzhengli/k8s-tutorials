@@ -1,12 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
   replicas: 3
   selector:
     matchLabels:
@@ -17,5 +13,5 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:v3
-        name: hellok8s-container
+        - image: guangzhengli/hellok8s:v1
+          name: hellok8s-container
