@@ -266,12 +266,19 @@ kubectl port-forward hellok8s 3000:3000
 
 ## Deployment
 
+在生产环境中，我们基本上不会直接管理 pod，我们需要 `kubenates` 来帮助我们来完成一些自动化操作，例如自动扩容或者自动升级版本。可以想象在生产环境中，我们手动部署了 10 个 `hellok8s:v1` 的 pod，这个时候我们需要升级成 `hellok8s:v2` 版本，我们难道需要一个一个的将 `hellok8s:v1` 的 pod 手动升级吗？
+
+这个时候就需要我们来看 `kubeates` 的另外一个资源 `deployment`，来帮助我们管理 pod。
+
+### 扩容
+
+首先可以创建一个 `deployment.yaml` 的文件。来管理 `hellok8s` pod。
+
 ```yaml
-# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
   replicas: 1
   selector:
@@ -287,31 +294,44 @@ spec:
           name: hellok8s-container
 ```
 
+其中  `kind` 表示我们要创建的资源是 `deployment` 类型，  `metadata.name` 表示要创建的 deployment 的名字，这个名字需要是**唯一**的。
+
+在 `spec` 里面表示，首先 `replicas` 表示的是部署的 pod 副本数量，`selector` 里面表示的是 `deployment` 资源和 `pod` 资源关联的方式，这里表示 `deployment` 会管理 (selector) 所有 `labels=hellok8s` 的 pod。
+
+`template` 的内容是用来定义 `pod` 资源的，你会发现和作业一：Hellok8s Pod 资源的定义是差不多的，唯一的区别是我们需要加上 `metadata.labels` 来和上面的 `selector.matchLabels` 对应起来。来表明 pod 是被 deployment 管理，不用在`template` 里面加上 `metadata.name` 是因为 deployment 会主动为我们创建 pod 的唯一`name`。
+
+接下来输入下面的命令，可以创建 `deployment` 资源。通过 `get` 和 `delete pod` 命令，我们会初步感受 deployment 的魅力。**每次创建的 pod 名称都会变化，某些命令记得替换成你的 pod 的名称**
+
 ```shell
 kubectl apply -f deployment.yaml
 
-kubectl get pods       
-# NAME                        READY   STATUS    RESTARTS
-# hellok8s-6678f66cb8-42jtr   1/1     Running   0       
+kubectl get deployments
+#NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+#hellok8s-deployment   1/1     1            1           39s
 
+kubectl get pods             
+#NAME                                   READY   STATUS    RESTARTS   AGE
+#hellok8s-deployment-77bffb88c5-qlxss   1/1     Running   0          119s
 
-# Replace the pod name with your local pod name
-kubectl delete pod hellok8s-6678f66cb8-42jtr
-# pod "hellok8s-6678f66cb8-42jtr" deleted
+kubectl delete pod hellok8s-deployment-77bffb88c5-qlxss 
+#pod "hellok8s-deployment-77bffb88c5-qlxss" deleted
 
-kubectl get pods
-# NAME                        READY   STATUS    RESTARTS  
-# hellok8s-6678f66cb8-8nqf2   1/1     Running   0
+kubectl get pods                                       
+#NAME                                   READY   STATUS    RESTARTS   AGE
+#hellok8s-deployment-77bffb88c5-xp8f7   1/1     Running   0          18s
 ```
 
+我们会发现一个有趣的现象，当手动删除一个 `pod` 资源后，deployment 会自动创建一个新的 `pod`，这和我们之前手动创建 pod 资源有本质的区别！这代表着当生产环境管理着成千上万个 pod 时，我们不需要关心具体的情况，只需要维护好这份 `deployment.yaml` 文件的资源定义即可。
+
+接下来我们通过自动扩容来加深这个知识点，当我们想要将 `hellok8s:v1` 的资源扩容到 3 个副本时，只需要将 `replicas` 的值设置成 3，接着重新输入 `kubectl apply -f deployment.yaml` 即可。如下所示：
+
 ```yaml
-# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
-  replicas: 10
+  replicas: 3
   selector:
     matchLabels:
       app: hellok8s
@@ -321,30 +341,52 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:v1
-        name: hellok8s-container
+        - image: guangzhengli/hellok8s:v1
+          name: hellok8s-container
 ```
 
-### release new verison
+可以在 `kubectl apply` 之前通过新建窗口执行 `kubectl get pods --watch` 命令来观察 pod 启动和删除的记录，想要减少副本数时也很简单，你可以尝试将副本数随意增大或者缩小，再通过 `watch` 来观察它的状态。
 
-```ruby
-get "*" do
-  "[v2] Hello, Kubernetes!\n"
-end
+![deployment](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/deployment.png)
+
+### 升级版本
+
+我们接下来尝试将所有 `v1` 版本的 `pod` 升级到 `v2` 版本。首先我们需要构建一份 `hellok8s:v2` 的版本镜像。唯一的区别就是字符串替换成了 `[v2] Hello, Kubernetes!`。
+
+```golang
+package main
+
+import (
+	"io"
+	"net/http"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "[v2] Hello, Kubernetes!")
+}
+
+func main() {
+	http.HandleFunc("/", hello)
+	http.ListenAndServe(":3000", nil)
+}
 ```
+
+将 `hellok8s:v2` 推到 DockerHub 仓库中。
 
 ```shell
 docker build . -t guangzhengli/hellok8s:v2
 docker push guangzhengli/hellok8s:v2
 ```
 
+接着编写 `v2` 版本的 deployment 资源文件。
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: hellok8s
@@ -354,25 +396,52 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:v2
-        name: hellok8s-container
+        - image: guangzhengli/hellok8s:v2
+          name: hellok8s-container
 ```
 
 ```shell
-kubectl get pods
-# NAME                        READY   STATUS
-# hellok8s-6678f66cb8-52zt9   1/1     Running
-# hellok8s-6678f66cb8-nxphs   1/1     Running
+kubectl apply -f deployment.yaml
+# deployment.apps/hellok8s-deployment configured
 
-# You can locally run the port forward command by replacing the pod name
-kubectl port-forward hellok8s-6678f66cb8-52zt9 4567:4567
+kubectl get pods                
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# hellok8s-deployment-66799848c4-kpc6q   1/1     Running   0          3s
+# hellok8s-deployment-66799848c4-pllj6   1/1     Running   0          3s
+# hellok8s-deployment-66799848c4-r7qtg   1/1     Running   0          3s
 
-# or open another terminal and run the followig command
-curl http://localhost:4567
+kubectl port-forward hellok8s-deployment-66799848c4-kpc6q 3000:3000
+# Forwarding from 127.0.0.1:3000 -> 3000
+# Forwarding from [::1]:3000 -> 3000
+
+# open another terminal
+curl http://localhost:3000
 # [v2] Hello, Kubernetes!
 ```
 
-### Rolling Update
+你也可以输入 `kubectl describe pod hellok8s-deployment-66799848c4-kpc6q` 来看是否是 `v2` 版本的镜像。
+
+### Rolling Update(滚动更新)
+
+如果我们在生产环境上，管理着多个副本的 `hellok8s:v1` 版本的 pod，我们需要更新到 `v2` 的版本，像上面那样的部署方式是可以的，但是也会带来一个问题，就是所有的副本在同一时间更新，这会导致我们 `hellok8s` 服务在短时间内是不可用的，因为所有 pod 都在升级到 `v2` 版本的过程中，需要等待某个 pod 升级完成后才能提供服务。
+
+这个时候我们就需要控制升级的速率，。具体可以详细看[官网定义](https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/deployment/)。
+
+我们先输入命令回滚我们的 deployment，输入 `kubectl describe pod` 会发现 deployment 已经把 `v2` 版本的 pod 回滚到 ` v1` 的版本。
+
+``` shell
+kubectl rollout undo deployment hellok8s-deployment
+
+kubectl get pods                                    
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# hellok8s-deployment-77bffb88c5-cvm5c   1/1     Running   0          39s
+# hellok8s-deployment-77bffb88c5-lktbl   1/1     Running   0          41s
+# hellok8s-deployment-77bffb88c5-nh82z   1/1     Running   0          37s
+
+kubectl describe pod hellok8s-deployment-77bffb88c5-cvm5c 
+```
+
+
 
 ```yaml
 apiVersion: apps/v1
