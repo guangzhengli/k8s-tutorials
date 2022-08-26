@@ -12,5 +12,5 @@ FROM gcr.io/distroless/base-debian10
 WORKDIR /
 
 COPY --from=builder /src/main /main
-EXPOSE 8080
+EXPOSE 3000
 ENTRYPOINT ["/main"]
