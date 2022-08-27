@@ -1315,6 +1315,49 @@ spec:
 
 Secret 的使用方法和前面教程中 ConfigMap 基本一致，这里就不再过多赘述。
 
+## Job
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: echo-job
+spec:
+  parallelism: 3
+  completions: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: echo
+          image: busybox
+          command: ["echo", "Running in a job"]
+```
+
+TODO
+
+## CronJob
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: echo-cronjob
+spec:
+  schedule: "* * * * *" # Every minute
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: echo
+              image: busybox
+              command: ["echo", "Triggered by a CronJob"]
+```
+
+TODO
+
 ## helm
 
 ```shell
@@ -1327,5 +1370,5 @@ helm list
 helm rollback hello-helm
 ```
 
-
+TODO
 
