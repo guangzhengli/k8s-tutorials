@@ -1,13 +1,13 @@
-# nginx.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx-svc
+  name: service-nginx-clusterip
 spec:
+  type: ClusterIP
   selector:
     app: nginx
   ports:
-  - port: 1234
+  - port: 4000
     targetPort: 80
 
 ---
@@ -15,7 +15,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: nginx-deployment
 spec:
   replicas: 2
   selector:
