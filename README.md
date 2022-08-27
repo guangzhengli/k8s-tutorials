@@ -1,27 +1,32 @@
 # Kubenates workshop
 
-* [Kubenates workshop](#kubenates-workshop)
-    * [准备工作](#准备工作)
-        * [安装 docker](#安装-docker)
-        * [安装 minikube](#安装-minikube)
-        * [安装 k8s CLI 和 Terminal based UI](#安装-k8s-cli-和-terminal-based-ui)
-        * [注册 docker hub 账号登录](#注册-docker-hub-账号登录)
-    * [Container](#container)
-    * [Pod](#pod)
-    * [Deployment](#deployment)
-        * [release new verison](#release-new-verison)
-        * [Rolling Update](#rolling-update)
-        * [Automatically blocking bad releases by readinessProbe](#automatically-blocking-bad-releases-by-readinessprobe)
-    * [Service](#service)
-    * [ingress](#ingress)
-    * [Configmap](#configmap)
-        * [env var](#env-var)
-        * [configmap](#configmap-1)
-        * [Getting all the variables from a ConfigMap](#getting-all-the-variables-from-a-configmap)
-        * [Exposing ConfigMap as files](#exposing-configmap-as-files)
-    * [Secret](#secret)
-        * [Using stringData](#using-stringdata)
-    * [helm](#helm)
+- [Kubenates workshop](#kubenates-workshop)
+  - [准备工作](#准备工作)
+    - [安装 docker](#安装-docker)
+    - [安装 minikube](#安装-minikube)
+    - [安装 k8s CLI 和 Terminal based UI](#安装-k8s-cli-和-terminal-based-ui)
+    - [注册 docker hub 账号登录](#注册-docker-hub-账号登录)
+  - [Container](#container)
+  - [Pod](#pod)
+    - [Pod 与 Container 的不同](#pod-与-container-的不同)
+    - [Pod 其它命令](#pod-其它命令)
+    - [作业一：Hellok8s Pod](#作业一hellok8s-pod)
+  - [Deployment](#deployment)
+    - [扩容](#扩容)
+    - [升级版本](#升级版本)
+    - [Rolling Update(滚动更新)](#rolling-update滚动更新)
+    - [存活 / 就绪探针](#存活--就绪探针)
+    - [Automatically blocking bad releases by readinessProbe](#automatically-blocking-bad-releases-by-readinessprobe)
+  - [Service](#service)
+  - [ingress](#ingress)
+  - [Configmap](#configmap)
+    - [env var](#env-var)
+    - [configmap](#configmap-1)
+    - [Getting all the variables from a ConfigMap](#getting-all-the-variables-from-a-configmap)
+    - [Exposing ConfigMap as files](#exposing-configmap-as-files)
+  - [Secret](#secret)
+    - [Using stringData](#using-stringdata)
+  - [helm](#helm)
 
 ## 准备工作
 
@@ -160,13 +165,13 @@ ENTRYPOINT ["/main"]
 docker build . -t guangzhengli/hellok8s:v1
 ```
 
- `docker build`  完成后我们可以通过 `docker images` 查看镜像基础信息，执行 `docker run` 命令将容器启动， `-p` 指定 `8080` 作为端口，`-d` 指定刚打包成功的镜像名称。
+ `docker build`  完成后我们可以通过 `docker images` 查看镜像基础信息，执行 `docker run` 命令将容器启动， `-p` 指定 `3000` 作为端口，`-d` 指定刚打包成功的镜像名称。
 
 ```shell
 docker run -p 3000:3000 --name hellok8s -d guangzhengli/hellok8s:v1
 ```
 
-运行成功后，可以通过浏览器或者 `curl` 来访问 `http://127.0.0.1:8080` , 查看是否成功返回字符串 `[v1] Hello, Kubernetes!`。
+运行成功后，可以通过浏览器或者 `curl` 来访问 `http://127.0.0.1:3000` , 查看是否成功返回字符串 `[v1] Hello, Kubernetes!`。
 
 这里因为我的 docker runtime 是使用 `minikube`，所以我需要先调用  `minikube ip` 来或者 IP 地址，例如这里返回了 `192.168.59.100`，所以我需要访问  `http://192.168.59.100:3000` 来判断是否成功返回字符串 `[v1] Hello, Kubernetes!`。
 
@@ -353,7 +358,7 @@ spec:
 
 我们接下来尝试将所有 `v1` 版本的 `pod` 升级到 `v2` 版本。首先我们需要构建一份 `hellok8s:v2` 的版本镜像。唯一的区别就是字符串替换成了 `[v2] Hello, Kubernetes!`。
 
-```golang
+```go
 package main
 
 import (
@@ -425,7 +430,17 @@ curl http://localhost:3000
 
 如果我们在生产环境上，管理着多个副本的 `hellok8s:v1` 版本的 pod，我们需要更新到 `v2` 的版本，像上面那样的部署方式是可以的，但是也会带来一个问题，就是所有的副本在同一时间更新，这会导致我们 `hellok8s` 服务在短时间内是不可用的，因为所有 pod 都在升级到 `v2` 版本的过程中，需要等待某个 pod 升级完成后才能提供服务。
 
-这个时候我们就需要控制升级的速率，。具体可以详细看[官网定义](https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/deployment/)。
+这个时候我们就需要滚动更新 (rolling update)，在保证新版本 `v2` 的 pod 还没有 `ready` 之前，先不删除 `v1` 版本的 pod。
+
+在 deployment 的资源定义中, `spec.strategy.type` 有两种选择:
+
+- **RollingUpdate:** 逐渐增加新版本的 pod，逐渐减少旧版本的 pod。
+- **Recreate:** 在新版本的 pod 增加前，先将所有旧版本 pod 删除。
+
+大多数情况下我们会采用滚动更新 (RollingUpdate) 的方式，滚动更新又可以通过 `maxSurge` 和 `maxUnavailable` 字段来控制升级 pod 的速率，具体可以详细看[官网定义](https://kubernetes.io/zh-cn/docs/concepts/workloads/controllers/deployment/)。：
+
+- [**maxSurge:**](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#max-surge) 最大峰值，用来指定可以创建的超出期望 Pod 个数的 Pod 数量。
+- [**maxUnavailable:**](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#max-unavailable,) 最大不可用，用来指定更新过程中不可用的 Pod 的个数上限。
 
 我们先输入命令回滚我们的 deployment，输入 `kubectl describe pod` 会发现 deployment 已经把 `v2` 版本的 pod 回滚到 ` v1` 的版本。
 
@@ -438,16 +453,24 @@ kubectl get pods
 # hellok8s-deployment-77bffb88c5-lktbl   1/1     Running   0          41s
 # hellok8s-deployment-77bffb88c5-nh82z   1/1     Running   0          37s
 
-kubectl describe pod hellok8s-deployment-77bffb88c5-cvm5c 
+kubectl describe pod hellok8s-deployment-77bffb88c5-cvm5c
+# Image: guangzhengli/hellok8s:v1
 ```
 
+除了上面的命令，还可以用 `history` 来查看历史版本，`--to-revision=2` 来回滚到指定版本。
 
+```shell
+kubectl rollout history deployment hellok8s-deployment
+kubectl rollout undo deployment/hellok8s-deployment --to-revision=2
+```
+
+接着设置 `strategy=rollingUpdate` , `maxSurge=1` , `maxUnavailable=1` 和 `replicas=3`  到 deployment.yaml 文件中。这个参数配置意味着最大可能会创建 4 个 hellok8s pod (replicas + maxSurge)，最小会有 2 个 hellok8s pod 存活 (replicas - maxUnavailable)。
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
   strategy:
      rollingUpdate:
@@ -467,35 +490,87 @@ spec:
         name: hellok8s-container
 ```
 
-```ruby
-require "sinatra"
+![rollingupdate](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/rollingupdate.png)
 
-set :bind, "0.0.0.0"
+### 存活探针 (livenessProb)
 
-$counter = 0
+> 存活探测器来确定什么时候要重启容器。 例如，存活探测器可以探测到应用死锁（应用程序在运行，但是无法继续执行后面的步骤）情况。 重启这种状态下的容器有助于提高应用的可用性，即使其中存在缺陷。-- [LivenessProb](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 
-get "*" do
-  $counter += 1
-  if $counter > 3
-    raise "Whoops, something is wrong"
-  end
+在生产中，有时候因为某些 bug 导致应用死锁或者线程耗尽了，最终会导致应用无法继续提供服务，这个时候如果没有手段来自动监控和处理这一问题的话，可能会导致很长一段时间无人发现。[kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/) 使用存活探测器 (livenessProb) 来确定什么时候要重启容器。
 
-  "[bad] Hello, Kubernetes!\n"
-end
+接下来我们写一个 `/healthz` 接口来说明 `livenessProb` 如何使用。 `/healthz` 接口会在启动成功的 15s 内正常返回 200 状态码，在 15s 后，会一直返回 500 的状态码。
+
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"time"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "[v2] Hello, Kubernetes!")
+}
+
+func main() {
+	started := time.Now()
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		duration := time.Since(started)
+		if duration.Seconds() > 15 {
+			w.WriteHeader(500)
+			w.Write([]byte(fmt.Sprintf("error: %v", duration.Seconds())))
+		} else {
+			w.WriteHeader(200)
+			w.Write([]byte("ok"))
+		}
+	})
+
+	http.HandleFunc("/", hello)
+	http.ListenAndServe(":3000", nil)
+}
 ```
 
+```yaml
+# Dockerfile
+FROM golang:1.16-buster AS builder
+RUN mkdir /src
+ADD . /src
+WORKDIR /src
+
+RUN go env -w GO111MODULE=auto
+RUN go build -o main .
+
+FROM gcr.io/distroless/base-debian10
+
+WORKDIR /
+
+COPY --from=builder /src/main /main
+EXPOSE 3000
+ENTRYPOINT ["/main"]
 ```
-docker build . -t guangzhengli/hellok8s:bad
-docker push guangzhengli/hellok8s:bad
+
+`Dockerfile` 的编写和原来保持一致，我们把 `tag` 修改为 `liveness` 并推送到远程仓库。
+
+```shell
+docker build . -t guangzhengli/hellok8s:liveness
+docker push guangzhengli/hellok8s:liveness
 ```
+
+最后编写 deployment 的定义，这里使用存活探测方式是使用 HTTP GET 请求，请求的是刚才定义的 `/healthz` 接口，`periodSeconds` 字段指定了 kubelet 每隔 3 秒执行一次存活探测。 `initialDelaySeconds` 字段告诉 kubelet 在执行第一次探测前应该等待 3 秒。如果服务器上 `/healthz` 路径下的处理程序返回成功代码，则 kubelet 认为容器是健康存活的。 如果处理程序返回失败代码，则 kubelet 会杀死这个容器并将其重启。
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
-  replicas: 2
+  strategy:
+     rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 3
   selector:
     matchLabels:
       app: hellok8s
@@ -505,82 +580,107 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:bad
-        name: hellok8s-container
+        - image: guangzhengli/hellok8s:liveness
+          name: hellok8s-container
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 3
 ```
+
+通过 `get` 或者 `describe` 命令可以发现 pod 一直处于重启当中。
 
 ```shell
-kubectl rollout history deployment hellok8s
-kubectl rollout undo deployment hellok8s
-kubectl rollout undo deployment/hellok8s --to-revision=2
-```
+kubectl apply -f deployment.yaml
 
-### Automatically blocking bad releases by readinessProbe
+kubectl get pods
+# NAME                                   READY   STATUS    RESTARTS     AGE
+# hellok8s-deployment-5995ff9447-d5fbz   1/1     Running   4 (6s ago)   102s
+# hellok8s-deployment-5995ff9447-gz2cx   1/1     Running   4 (5s ago)   101s
+# hellok8s-deployment-5995ff9447-rh29x   1/1     Running   4 (6s ago)   102s
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: hellok8s
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: hellok8s
-  template:
-    metadata:
-      labels:
-        app: hellok8s
-    spec:
-      containers:
-      - image: guangzhengli/hellok8s:v2 # Still using v2
-        name: hellok8s-container
-        readinessProbe: # New readiness probe
-          periodSeconds: 1
-          successThreshold: 5
-          httpGet:
-            path: /
-            port: 4567
-```
-
-```shell
 kubectl describe pod hellok8s-68f47f657c-zwn6g
 
 # ...
 # ...
 # ...
-# Readiness probe failed:
-# HTTP probe failed with statuscode: 500
+# Events:
+#  Type     Reason     Age                   From               Message
+#  ----     ------     ----                  ----               -------
+#  Normal   Scheduled  12m                   default-scheduler  Successfully assigned default/hellok8s-deployment-5995ff9447-rh29x to minikube
+#  Normal   Pulled     11m (x4 over 12m)     kubelet            Container image "guangzhengli/hellok8s:liveness" already present on machine
+#  Normal   Created    11m (x4 over 12m)     kubelet            Created container hellok8s-container
+#  Normal   Started    11m (x4 over 12m)     kubelet            Started container hellok8s-container
+#  Normal   Killing    11m (x3 over 12m)     kubelet            Container hellok8s-container failed liveness probe, will be restarted
+#  Warning  Unhealthy  11m (x10 over 12m)    kubelet            Liveness probe failed: HTTP probe failed with statuscode: 500
+#  Warning  BackOff    2m41s (x36 over 10m)  kubelet            Back-off restarting failed container
 ```
 
-## Service
+### 就绪探针 (readiness)
 
-```yaml
-# service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: hellok8s-svc
-spec:
-  type: NodePort
-  selector:
-    app: hellok8s
-  ports:
-  - port: 4567
-    nodePort: 30001
+> 就绪探测器可以知道容器何时准备好接受请求流量，当一个 Pod 内的所有容器都就绪时，才能认为该 Pod 就绪。 这种信号的一个用途就是控制哪个 Pod 作为 Service 的后端。 若 Pod 尚未就绪，会被从 Service 的负载均衡器中剔除。-- [ReadinessProb](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
+
+在生产环境中，升级服务的版本是日常的需求，这时我们需要考虑一种场景，即当发布的版本存在问题，就不应该让它升级成功。kubelet 使用就绪探测器可以知道容器何时准备好接受请求流量，当一个 pod 升级后不能就绪，即不应该让流量进入该 pod，在配合 `rollingUpate` 的功能下，也不能允许升级版本继续下去，否则服务会出现全部升级完成，导致所有服务均不可用的情况。
+
+这里我们把服务回滚到 `hellok8s:v2` 的版本，可以通过上面学习的方法进行回滚。
+
+```shell
+kubectl rollout undo deployment hellok8s-deployment --to-revision=2
 ```
 
-```
-kubectl apply -f service.yaml
+这里我们将应用的 `/healthz` 接口直接设置成返回 500 状态码，代表该版本是一个有问题的版本。
+
+```go
+package main
+
+import (
+	"io"
+	"net/http"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "[v2] Hello, Kubernetes!")
+}
+
+func main() {
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(500)
+	})
+
+	http.HandleFunc("/", hello)
+	http.ListenAndServe(":3000", nil)
+}
 ```
 
-```yaml
+在 `build` 阶段我们将 `tag` 设置为 `bad`，打包后 push 到远程仓库。
+
+``` shell
+docker build . -t guangzhengli/hellok8s:bad
+
+docker push guangzhengli/hellok8s:bad
+```
+
+接着编写 deployment 资源文件，[Probe](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#probe-v1-core) 有很多配置字段，可以使用这些字段精确地控制就绪检测的行为：
+
+- `initialDelaySeconds`：容器启动后要等待多少秒后才启动存活和就绪探测器， 默认是 0 秒，最小值是 0。
+- `periodSeconds`：执行探测的时间间隔（单位是秒）。默认是 10 秒。最小值是 1。
+- `timeoutSeconds`：探测的超时后等待多少秒。默认值是 1 秒。最小值是 1。
+- `successThreshold`：探测器在失败后，被视为成功的最小连续成功数。默认值是 1。 存活和启动探测的这个值必须是 1。最小值是 1。
+- `failureThreshold`：当探测失败时，Kubernetes 的重试次数。 对存活探测而言，放弃就意味着重新启动容器。 对就绪探测而言，放弃意味着 Pod 会被打上未就绪的标签。默认值是 3。最小值是 1。
+
+``` yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
-  replicas: 2
+  strategy:
+     rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 3
   selector:
     matchLabels:
       app: hellok8s
@@ -590,42 +690,237 @@ spec:
         app: hellok8s
     spec:
       containers:
-      - image: guangzhengli/hellok8s:v3
-        name: hellok8s-container
+        - image: guangzhengli/hellok8s:bad
+          name: hellok8s-container
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 1
+            successThreshold: 5
 ```
 
-```
-kubectl get service hellok8s-svc
-```
-
-```ruby
-#app.rb
-require "sinatra"
-
-set :bind, "0.0.0.0"
-
-get "*" do
-  "[v3] Hello, Kubernetes, from #{`hostname`.strip}!\n"
-end
-```
-
-```
-docker build . -t guangzhengli/hellok8s:v3
-docker push guangzhengli/hellok8s:v3
-```
+通过 `get` 命令可以发现两个 pod 一直处于还没有 Ready 的状态当中，通过 `describe` 命令可以看到是因为 `Readiness probe failed: HTTP probe failed with statuscode: 500` 的原因。又因为设置了最小不可用的服务数量为`maxUnavailable=1`，这样能保证剩下两个 `v2` 版本的 `hellok8s` 能继续提供服务！
 
 ```shell
 kubectl apply -f deployment.yaml
 
-curl http://localhost:30001
-# [v3] Hello, Kubernetes, from hellok8s-7f4c57d446-t9ngx!
+kubectl get pods                
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# hellok8s-deployment-66799848c4-8xzsz   1/1     Running   0          102s
+# hellok8s-deployment-66799848c4-m9dl5   1/1     Running   0          102s
+# hellok8s-deployment-9c57c7f56-rww7k    0/1     Running   0          26s
+# hellok8s-deployment-9c57c7f56-xt9tw    0/1     Running   0          26s
 
-curl http://localhost:30001
-# [v3] Hello, Kubernetes, from hellok8s-7f4c57d446-985dq!
 
-curl http://localhost:30001
-# [v3] Hello, Kubernetes, from hellok8s-7f4c57d446-t9ngx!
+kubectl describe pod hellok8s-deployment-9c57c7f56-rww7k
+# Events:
+#   Type     Reason     Age                From               Message
+#   ----     ------     ----               ----               -------
+#   Normal   Scheduled  74s                default-scheduler  Successfully assigned default/hellok8s-deployment-9c57c7f56-rww7k to minikube
+#   Normal   Pulled     73s                kubelet            Container image "guangzhengli/hellok8s:bad" already present on machine
+#   Normal   Created    73s                kubelet            Created container hellok8s-container
+#   Normal   Started    73s                kubelet            Started container hellok8s-container
+#   Warning  Unhealthy  0s (x10 over 72s)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 500
 ```
+
+## Service
+
+经过前面几节的练习，可能你会有一些疑惑：
+
+* 为什么 pod 不就绪 (Ready) 的话，`kubenates` 不会将流量重定向到该 pod，这是怎么做到的？
+* 前面访问服务的方式是通过 `port-forword` 将 pod 的端口暴露到本地，不仅需要写对 pod 的名字，一旦 deployment 重新创建新的 pod，pod 名字和 pod 的 IP 地址也会随之变化，有没有一个地址能让我们稳定访问？
+* `port-forword` 的方式需要有权限访问 `kubenates` 集群才能做到，难道生产环境也能这么做吗？
+* 如果部署了多个副本 pod，如何做负载均衡？
+
+`kubenates` 提供了一种名叫 `Service` 的资源帮助解决这些问题，它为 pod 提供一个稳定的 Endpoint。Servie 位于 pod 的前面，负责接收请求并将它们传递给它后面的所有pod。一旦服务中的 Pod 集合发生更改，Endpoints 就会被更新，请求的重定向自然也会导向最新的 pod。
+
+### ClusterIP
+
+我们先来看看 `Service` 默认使用的 `ClusterIP` 类型，首先做一些准备工作，在之前的 `hellok8s:v2` 版本上加上返回当前服务所在的 `hostname` 功能，升级到 `v3` 版本。
+
+``` go
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	host, _ := os.Hostname()
+	io.WriteString(w, fmt.Sprintf("[v3] Hello, Kubernetes!, From host: %s", host))
+}
+
+func main() {
+	http.HandleFunc("/", hello)
+	http.ListenAndServe(":3000", nil)
+}
+```
+
+`Dockerfile` 和之前保持一致，打包 `tag=v3` 并推送到远程仓库。
+
+``` shell
+docker build . -t guangzhengli/hellok8s:v3
+
+docker push guangzhengli/hellok8s:v3
+```
+
+修改 deployment 的 `hellok8s` 为 `v3` 版本。执行 `kubectl apply -f deployment.yaml` 更新 deployment。
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hellok8s-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hellok8s
+  template:
+    metadata:
+      labels:
+        app: hellok8s
+    spec:
+      containers:
+        - image: guangzhengli/hellok8s:v3
+          name: hellok8s-container
+```
+
+接下来是 `Service` 资源的定义，我们使用 `ClusterIP` 的方式定义 Service，通过 `kubenates` 集群的内部 IP 暴露服务，当我们只需要让集群中运行的其他应用程序访问我们的pod时，就可以使用这种类型的服务。创建一个 service-hellok8s-clusterip.yaml` 文件。
+
+``` yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-hellok8s-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: hellok8s
+  ports:
+  - port: 3000
+    targetPort: 3000
+```
+
+```shell
+kubectl apply -f service-hellok8s-clusterip.yaml
+
+kubectl get service
+# NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+# service-hellok8s-clusterip   ClusterIP   10.104.96.153   <none>        3000/TCP   10s
+```
+
+我们可以通过在集群其它应用中访问 `service-hellok8s-clusterip` 的 IP 地址 `10.104.96.153` 来访问 `hellok8s:v3` 服务。
+
+这里通过在集群内创建一个 `nginx` 来访问。创建后进入 `nginx` 容器来用 `curl` 命令访问 `service-hellok8s-clusterip` 。
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+```
+
+```shell
+kubectl get pods
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# hellok8s-deployment-5d5545b69c-24lw5   1/1     Running   0          27m
+# hellok8s-deployment-5d5545b69c-9g94t   1/1     Running   0          27m
+# hellok8s-deployment-5d5545b69c-9gm8r   1/1     Running   0          27m
+# nginx                                  1/1     Running   0          41m
+
+kubectl get service
+# NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+# service-hellok8s-clusterip   ClusterIP   10.104.96.153   <none>        3000/TCP   10s
+
+kubectl exec -it nginx-pod /bin/bash
+# root@nginx-pod:/# curl 10.104.96.153:3000
+# [v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-9gm8r
+# root@nginx-pod:/# curl 10.104.96.153:3000
+#[v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-9g94t
+```
+
+可以看到，我们多次 `curl 10.104.96.153:3000` 访问 `hellok8s` Service IP 地址，返回的 `hellok8s:v3` `hostname` 不一样，说明 Service 可以接收请求并将它们传递给它后面的所有 pod，还可以自动负载均衡。你也可以试试增加或者减少 `hellok8s:v3` pod 副本数量，观察 Service 的请求是否会动态变更。调用过程如下图所示：
+
+![service-clusterip](/Users/guangzheng.li/Downloads/service-clusterip.png)
+
+除了上述的 `ClusterIp` 的方式外，Kubernetes `ServiceTypes` 允许指定你所需要的 Service 类型，默认是 `ClusterIP`。`Type` 的值包括如下：
+
+- `ClusterIP`：通过集群的内部 IP 暴露服务，选择该值时服务只能够在集群内部访问。 这也是默认的 `ServiceType`。
+- [`NodePort`](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport)：通过每个节点上的 IP 和静态端口（`NodePort`）暴露服务。 `NodePort` 服务会路由到自动创建的 `ClusterIP` 服务。 通过请求 `<节点 IP>:<节点端口>`，你可以从集群的外部访问一个 `NodePort` 服务。
+- [`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)：使用云提供商的负载均衡器向外部暴露服务。 外部负载均衡器可以将流量路由到自动创建的 `NodePort` 服务和 `ClusterIP` 服务上。
+- [`ExternalName`](https://kubernetes.io/docs/concepts/services-networking/service/#externalname)：通过返回 `CNAME` 和对应值，可以将服务映射到 `externalName` 字段的内容（例如，`foo.bar.example.com`）。 无需创建任何类型代理。
+
+### NodePort
+
+我们知道`kubenates` 集群并不是单机运行，它管理着多台节点即 [Node](https://kubernetes.io/docs/concepts/architecture/nodes/)，可以通过每个节点上的 IP 和静态端口（`NodePort`）暴露服务。如下图所示，如果集群内有两台 Node 运行着 `hellok8s:v3`，我们创建一个 `NodePort` 类型的 Service，将 `hellok8s:v3` 的 `3000` 端口映射到 Node 机器的 `30000` 端口 (在 30000-32767 范围内)，就可以通过访问 `http://node1-ip:30000` 或者 `http://node2-ip:30000` 访问到服务。
+
+![service-nodeport-final](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/service-nodeport-final.png)
+
+这里以 `minikube` 为例，我们可以通过 `minikube ip` 命令拿到 k8s cluster node  IP地址。下面的教程都以我本机的 `192.168.59.100` 为例，需要替换成你的 IP 地址。
+
+```shell
+minikube ip
+# 192.168.59.100
+```
+
+接着以 NodePort 的 ServiceType 创建一个 Service 来接管 pod 流量。通过`minikube` 节点上的 IP `192.168.59.100` 暴露服务。 `NodePort` 服务会路由到自动创建的 `ClusterIP` 服务。 通过请求 `<节点 IP>:<节点端口>` -- `192.168.59.100`:30000，你可以从集群的外部访问一个 `NodePort` 服务，最终重定向到 `hellok8s:v3` 的 `3000` 端口。
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-hellok8s-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: hellok8s
+  ports:
+  - port: 3000
+    nodePort: 30000
+```
+
+创建 `service-hellok8s-nodeport` Servcie 后，使用 `curl` 命令或者浏览器访问 `http://192.168.59.100:30000` 可以得到结果。
+
+```shell
+kubectl apply -f service-hellok8s-nodeport.yaml
+
+kubectl get service
+# NAME                         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+# service-hellok8s-nodeport    NodePort    10.109.188.161   <none>        3000:30000/TCP   28s
+
+kubectl get pods
+# NAME                                   READY   STATUS    RESTARTS   AGE
+# hellok8s-deployment-5d5545b69c-24lw5   1/1     Running   0          27m
+# hellok8s-deployment-5d5545b69c-9g94t   1/1     Running   0          27m
+# hellok8s-deployment-5d5545b69c-9gm8r   1/1     Running   0          27m
+
+curl http://192.168.59.100:30000
+# [v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-9g94t
+
+curl http://192.168.59.100:30000
+# [v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-24lw5
+```
+
+### LoadBalancer
+
+[`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) 是使用云提供商的负载均衡器向外部暴露服务。 外部负载均衡器可以将流量路由到自动创建的 `NodePort` 服务和 `ClusterIP` 服务上，假如你在 [AWS](https://aws.amazon.com) 的 [EKS](https://aws.amazon.com/eks/) 集群上创建一个 Type 为 `LoadBalancer`  的 Service。它会自动创建一个 ELB ([Elastic Load Balancer](https://aws.amazon.com/elasticloadbalancing)) ，并可以根据配置的 IP 池中自动分配一个独立的 IP 地址，可以供外部访问。
+
+这里因为我们使用的是 `minikube`，可以使用 `minikube tunnel` 来辅助创建 LoadBalancer 的 `EXTERNAL_IP`，具体教程可以查看[官网文档](https://minikube.sigs.k8s.io/docs/handbook/accessing/#loadbalancer-access)，但是和实际云提供商的 LoadBalancer 还是有本质区别，所以 [Repository](https://github.com/guangzhengli/kubenates_workshop) 不做更多阐述，有条件的可以使用 [AWS](https://aws.amazon.com) 的 [EKS](https://aws.amazon.com/eks/) 集群上创建一个 ELB ([Elastic Load Balancer](https://aws.amazon.com/elasticloadbalancing)) 试试。
+
+下图显示 LoadBalancer 的 Service 架构图。
+
+![service-loadbalancer](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/service-loadbalancer.png)
 
 ## ingress
 
