@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: hellok8s-config
 data:
-  MESSAGE: "It works with a ConfigMap!"
+  DB_URL: "http://DB_ADDRESS_TEST"
