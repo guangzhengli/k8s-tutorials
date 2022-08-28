@@ -1,6 +1,6 @@
-# Kubenates workshop
+# kubernetes workshop
 
-- [Kubenates workshop](#kubenates-workshop)
+- [kubernetes workshop](#kubernetes-workshop)
   - [准备工作](#准备工作)
     - [安装 docker](#安装-docker)
     - [安装 minikube](#安装-minikube)
@@ -92,7 +92,7 @@ docker run hello-world
 brew install kubectl
 ```
 
-如果我们希望更直观的观察 kubenates 中资源的变化，也可以安装一个 [k9s](https://k9scli.io/)（对于初学者而言，更建议使用 kubectl 来手动观察）
+如果我们希望更直观的观察 kubernetes 中资源的变化，也可以安装一个 [k9s](https://k9scli.io/)（对于初学者而言，更建议使用 kubectl 来手动观察）
 
 ```bash
 brew install k9s
@@ -134,7 +134,7 @@ func main() {
 }
 ```
 
-接下来我们编写 `Dockerfile` 文件，简单的方案当然是直接使用 golang 的 alpine 镜像来打包，但是因为我们后续练习需要频繁的 push image 到 dockerhub 和 pull image 到 kubenates 中，为了优化网络速度，可以先在 `golang:1.16-buster` 中将上述代码编译成二进制文件，再将二进制文件复制到 `base-debian10` 镜像中运行。
+接下来我们编写 `Dockerfile` 文件，简单的方案当然是直接使用 golang 的 alpine 镜像来打包，但是因为我们后续练习需要频繁的 push image 到 dockerhub 和 pull image 到 kubernetes 中，为了优化网络速度，可以先在 `golang:1.16-buster` 中将上述代码编译成二进制文件，再将二进制文件复制到 `base-debian10` 镜像中运行。
 
 这样我们可以将 300MB～500MB 大小的镜像变成只有 20MB 的镜像，甚至压缩上传到 DockerHub 后大小只有 10MB。
 
@@ -214,12 +214,12 @@ kubectl apply -f nginx.yaml
 ```shell
 kubectl exec -it nginx-pod /bin/bash
 
-echo "hello kubenates by nginx!" > /usr/share/nginx/html/index.html
+echo "hello kubernetes by nginx!" > /usr/share/nginx/html/index.html
 
 kubectl port-forward nginx-pod 4000:80
 ```
 
-最后可以通过浏览器或者 `curl` 来访问 `http://127.0.0.1:4000` , 查看是否成功启动 `nginx` 和返回字符串 `hello kubenates by nginx!`。
+最后可以通过浏览器或者 `curl` 来访问 `http://127.0.0.1:4000` , 查看是否成功启动 `nginx` 和返回字符串 `hello kubernetes by nginx!`。
 
 ### Pod 与 Container 的不同
 
@@ -271,7 +271,7 @@ kubectl port-forward hellok8s 3000:3000
 
 ## Deployment
 
-在生产环境中，我们基本上不会直接管理 pod，我们需要 `kubenates` 来帮助我们来完成一些自动化操作，例如自动扩容或者自动升级版本。可以想象在生产环境中，我们手动部署了 10 个 `hellok8s:v1` 的 pod，这个时候我们需要升级成 `hellok8s:v2` 版本，我们难道需要一个一个的将 `hellok8s:v1` 的 pod 手动升级吗？
+在生产环境中，我们基本上不会直接管理 pod，我们需要 `kubernetes` 来帮助我们来完成一些自动化操作，例如自动扩容或者自动升级版本。可以想象在生产环境中，我们手动部署了 10 个 `hellok8s:v1` 的 pod，这个时候我们需要升级成 `hellok8s:v2` 版本，我们难道需要一个一个的将 `hellok8s:v1` 的 pod 手动升级吗？
 
 这个时候就需要我们来看 `kubeates` 的另外一个资源 `deployment`，来帮助我们管理 pod。
 
@@ -728,12 +728,12 @@ kubectl describe pod hellok8s-deployment-9c57c7f56-rww7k
 
 经过前面几节的练习，可能你会有一些疑惑：
 
-* 为什么 pod 不就绪 (Ready) 的话，`kubenates` 不会将流量重定向到该 pod，这是怎么做到的？
+* 为什么 pod 不就绪 (Ready) 的话，`kubernetes` 不会将流量重定向到该 pod，这是怎么做到的？
 * 前面访问服务的方式是通过 `port-forword` 将 pod 的端口暴露到本地，不仅需要写对 pod 的名字，一旦 deployment 重新创建新的 pod，pod 名字和 pod 的 IP 地址也会随之变化，有没有一个地址能让我们稳定访问？
-* `port-forword` 的方式需要有权限访问 `kubenates` 集群才能做到，难道生产环境也能这么做吗？
+* `port-forword` 的方式需要有权限访问 `kubernetes` 集群才能做到，难道生产环境也能这么做吗？
 * 如果部署了多个副本 pod，如何做负载均衡？
 
-`kubenates` 提供了一种名叫 `Service` 的资源帮助解决这些问题，它为 pod 提供一个稳定的 Endpoint。Servie 位于 pod 的前面，负责接收请求并将它们传递给它后面的所有pod。一旦服务中的 Pod 集合发生更改，Endpoints 就会被更新，请求的重定向自然也会导向最新的 pod。
+`kubernetes` 提供了一种名叫 `Service` 的资源帮助解决这些问题，它为 pod 提供一个稳定的 Endpoint。Servie 位于 pod 的前面，负责接收请求并将它们传递给它后面的所有pod。一旦服务中的 Pod 集合发生更改，Endpoints 就会被更新，请求的重定向自然也会导向最新的 pod。
 
 ### ClusterIP
 
@@ -790,7 +790,7 @@ spec:
           name: hellok8s-container
 ```
 
-接下来是 `Service` 资源的定义，我们使用 `ClusterIP` 的方式定义 Service，通过 `kubenates` 集群的内部 IP 暴露服务，当我们只需要让集群中运行的其他应用程序访问我们的pod时，就可以使用这种类型的服务。创建一个 service-hellok8s-clusterip.yaml` 文件。
+接下来是 `Service` 资源的定义，我们使用 `ClusterIP` 的方式定义 Service，通过 `kubernetes` 集群的内部 IP 暴露服务，当我们只需要让集群中运行的其他应用程序访问我们的pod时，就可以使用这种类型的服务。创建一个 service-hellok8s-clusterip.yaml` 文件。
 
 ``` yaml
 apiVersion: v1
@@ -863,7 +863,7 @@ kubectl exec -it nginx-pod /bin/bash
 
 ### NodePort
 
-我们知道`kubenates` 集群并不是单机运行，它管理着多台节点即 [Node](https://kubernetes.io/docs/concepts/architecture/nodes/)，可以通过每个节点上的 IP 和静态端口（`NodePort`）暴露服务。如下图所示，如果集群内有两台 Node 运行着 `hellok8s:v3`，我们创建一个 `NodePort` 类型的 Service，将 `hellok8s:v3` 的 `3000` 端口映射到 Node 机器的 `30000` 端口 (在 30000-32767 范围内)，就可以通过访问 `http://node1-ip:30000` 或者 `http://node2-ip:30000` 访问到服务。
+我们知道`kubernetes` 集群并不是单机运行，它管理着多台节点即 [Node](https://kubernetes.io/docs/concepts/architecture/nodes/)，可以通过每个节点上的 IP 和静态端口（`NodePort`）暴露服务。如下图所示，如果集群内有两台 Node 运行着 `hellok8s:v3`，我们创建一个 `NodePort` 类型的 Service，将 `hellok8s:v3` 的 `3000` 端口映射到 Node 机器的 `30000` 端口 (在 30000-32767 范围内)，就可以通过访问 `http://node1-ip:30000` 或者 `http://node2-ip:30000` 访问到服务。
 
 ![service-nodeport-final](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/service-nodeport-final.png)
 
@@ -916,7 +916,7 @@ curl http://192.168.59.100:30000
 
 [`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) 是使用云提供商的负载均衡器向外部暴露服务。 外部负载均衡器可以将流量路由到自动创建的 `NodePort` 服务和 `ClusterIP` 服务上，假如你在 [AWS](https://aws.amazon.com) 的 [EKS](https://aws.amazon.com/eks/) 集群上创建一个 Type 为 `LoadBalancer`  的 Service。它会自动创建一个 ELB ([Elastic Load Balancer](https://aws.amazon.com/elasticloadbalancing)) ，并可以根据配置的 IP 池中自动分配一个独立的 IP 地址，可以供外部访问。
 
-这里因为我们使用的是 `minikube`，可以使用 `minikube tunnel` 来辅助创建 LoadBalancer 的 `EXTERNAL_IP`，具体教程可以查看[官网文档](https://minikube.sigs.k8s.io/docs/handbook/accessing/#loadbalancer-access)，但是和实际云提供商的 LoadBalancer 还是有本质区别，所以 [Repository](https://github.com/guangzhengli/kubenates_workshop) 不做更多阐述，有条件的可以使用 [AWS](https://aws.amazon.com) 的 [EKS](https://aws.amazon.com/eks/) 集群上创建一个 ELB ([Elastic Load Balancer](https://aws.amazon.com/elasticloadbalancing)) 试试。
+这里因为我们使用的是 `minikube`，可以使用 `minikube tunnel` 来辅助创建 LoadBalancer 的 `EXTERNAL_IP`，具体教程可以查看[官网文档](https://minikube.sigs.k8s.io/docs/handbook/accessing/#loadbalancer-access)，但是和实际云提供商的 LoadBalancer 还是有本质区别，所以 [Repository](https://github.com/guangzhengli/kubernetes_workshop) 不做更多阐述，有条件的可以使用 [AWS](https://aws.amazon.com) 的 [EKS](https://aws.amazon.com/eks/) 集群上创建一个 ELB ([Elastic Load Balancer](https://aws.amazon.com/elasticloadbalancing)) 试试。
 
 下图显示 LoadBalancer 的 Service 架构图。
 
@@ -1423,7 +1423,50 @@ kubectl get pods
 # hello-cronjob-27694609--1-2nmdx        0/1     Completed   0          15s
 ```
 
-## helm
+## Helm
+
+经过前面的教程，想必你已经对 kubernetes 的使用有了一定的理解。但是不知道你是否想过这样一个问题，就是我们前面教程中提到的所有资源，包括用 `pod`, `deployment`, `service`, `ingress`, `configmap`,`secret` 所有资源来部署一套完整的 `hellok8s` 服务的话，难道需要一个一个的 `kubectl apply -f` 来创建吗？如果换一个 namespace，或者说换一套 kubernetes 集群部署的话，又要重复性的操作创建的过程吗？
+
+我们平常使用操作系统时，需要一个应用的话，可以直接使用 `apt` 或者 `brew` 来直接安装，而不需要关心这个应用需要哪些依赖，哪些配置。在使用 kubernetes 安装应用服务 `hellok8s` 时，我们自然也希望能够一个命令就安装完成，而提供这个能力的，就是 CNCF 的毕业项目 [Helm](https://github.com/helm/helm)。
+
+> Helm 帮助您管理 Kubernetes 应用—— Helm Chart，Helm 是查找、分享和使用软件构建 [Kubernetes](https://kubernetes.io/) 的最优方式。
+>
+> 复杂性管理 ——即使是最复杂的应用，Helm Chart 依然可以描述， 提供使用单点授权的可重复安装应用程序。
+>
+> 易于升级 ——随时随地升级和自定义的钩子消除您升级的痛苦。
+>
+> 分发简单 —— Helm Chart 很容易在公共或私有化服务器上发版，分发和部署站点。
+>
+> 回滚 —— 使用 `helm rollback` 可以轻松回滚到之前的发布版本。
+
+我们通过 brew 来安装 helm。更多方式可以参考[官方文档](https://helm.sh/zh/docs/intro/install/)。
+
+```shell
+brew install helm
+```
+
+Helm 的使用方式可以解释为：Helm 安装 *charts* 到 Kubernetes 集群中，每次安装都会创建一个新的 *release*。你可以在 Helm 的 chart *repositories* 中寻找新的 chart。
+
+使用 `helm create` 命令默认会帮你创建一些 k8s 资源定义的初始文件，如下所示：
+
+```
+helm create hello-helm
+
+.
+├── Chart.yaml
+├── _helpers.tpl
+├── charts
+├── templates
+│   ├── hellok8s-configmaps.yaml
+│   ├── hellok8s-deployment.yaml
+│   ├── hellok8s-service.yaml
+│   ├── ingress.yaml
+│   ├── nginx-deployment.yaml
+│   └── nginx-service.yaml
+└── values.yaml
+```
+
+
 
 ```shell
 helm create helm-hello
