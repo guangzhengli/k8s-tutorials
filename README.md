@@ -1,3 +1,60 @@
+<h1 align=center>Kubernetes Tutorials | <a href="https://github.com/guangzhengli/k8s-tutorials" rel="nofollow">Repository</a></h1>
+
+[![GitHub forks](https://img.shields.io/github/forks/guangzhengli/k8s-tutorials)](https://github.com/guangzhengli/k8s-tutorials/network)[![GitHub stars](https://img.shields.io/github/stars/guangzhengli/k8s-tutorials)](https://github.com/guangzhengli/k8s-tutorials/stargazers)[![GitHub issues](https://img.shields.io/github/issues/guangzhengli/k8s-tutorials)](https://github.com/guangzhengli/k8s-tutorials/issues)[![GitHub license](https://img.shields.io/github/license/guangzhengli/k8s-tutorials)](https://github.com/guangzhengli/k8s-tutorials/blob/main/LICENSE)
+
+<h4 align=center>🌈 Kubernetes | 📰 Tutorials</h4>
+
+k8s 作为云原生时代的操作系统，学习它的必要性不言而喻，如果你遇到了任何问题，可以在 [Discussions](https://github.com/guangzhengli/k8s-tutorials/discussions) 中评论或者 Issue 中提出，如果你觉得这个仓库对你有价值，欢迎 start 或者提 PR / Issue，让它变得更好！
+
+这里是文档的索引：
+* [准备工作](docs/pre.md)
+* [container](docs/container.md)
+* [pod](docs/pod.md)
+* [deployment](docs/deployment.md)
+* [service](docs/service.md)
+* [ingress](docs/ingress.md)
+* [namespace](docs/namespace.md)
+* [configmap](docs/configmap.md)
+* [secret](docs/secret.md)
+* [job/cronjob](docs/job.md)
+* [helm(待完成)](docs/helm.md)
+* [dashboard(待完成)](docs/dashboard.md)
+
+下面是所有文档的集合：
+
+- [kubernetes tutorials](#kubernetes-tutorials)
+  - [准备工作](#准备工作)
+    - [安装 docker](#安装-docker)
+    - [安装 minikube](#安装-minikube)
+    - [安装 k8s CLI 和 Terminal based UI](#安装-k8s-cli-和-terminal-based-ui)
+    - [注册 docker hub 账号登录](#注册-docker-hub-账号登录)
+  - [Container](#container)
+  - [Pod](#pod)
+    - [Pod 与 Container 的不同](#pod-与-container-的不同)
+    - [Pod 其它命令](#pod-其它命令)
+  - [Deployment](#deployment)
+    - [扩容](#扩容)
+    - [升级版本](#升级版本)
+    - [Rolling Update(滚动更新)](#rolling-update滚动更新)
+    - [存活探针 (livenessProb)](#存活探针-livenessprob)
+    - [就绪探针 (readiness)](#就绪探针-readiness)
+  - [Service](#service)
+    - [ClusterIP](#clusterip)
+    - [NodePort](#nodeport)
+    - [LoadBalancer](#loadbalancer)
+  - [ingress](#ingress)
+  - [Namespace](#namespace)
+  - [Configmap](#configmap)
+  - [Secret](#secret)
+  - [Job](#job)
+  - [CronJob](#cronjob)
+  - [Helm(TODO)](#helmtodo)
+    - [安装 hellok8s chart 快速开始(TODO)](#安装-hellok8s-chart-快速开始todo)
+    - [创建 helm charts](#创建-helm-charts)
+    - [上传和下载其它 helm chart 使用 (TODO)](#上传和下载其它-helm-chart-使用-todo)
+  - [Dashboard(TODO)](#dashboardtodo)
+    - [K9s(TODO)](#k9stodo)
+
 # kubernetes tutorials
 
 ## 准备工作
@@ -1214,10 +1271,6 @@ kubectl port-forward hellok8s-pod 3000:3000 -n test
 curl http://localhost:3000
 # [v4] Hello, Kubernetes! From host: hellok8s-pod, Get Database Connect URL: http://DB_ADDRESS_TEST
 ```
-
-作业：如果环境变量有很多的话，还需要这样一个一个写吗？去官网找一种将所有环境变量都挂载的方式。
-
-如何代码不是从环境变量中读取数据，而是从文件中读取呢？去官网找一种将 configmap 挂载到容器文件的方式。
 
 ## Secret
 
