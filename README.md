@@ -16,7 +16,7 @@ brew install docker-compose
 
 ### 安装 minikube
 
-[minikube](https://minikube.sigs.k8s.io/docs/) 用于在本地环境中运行 Kubernetes 集群。但它也运行一个可用于运行容器的 docker 守护进程。在 macOS 上，minikube 运行在很多虚拟化技术上，可以选择[hyperkit](https://minikube.sigs.k8s.io/docs/drivers/hyperkit/)，这里因为我本地之前已经安装过 virtualbox (brew install --cask virtualbox)，所以我用的是 virtualbox 虚拟化技术。如果你本地之前已经安装了 docker desktop 的话，可以不需要下载 `hyperkit` 或者 `virtualbox`。
+[minikube](https://minikube.sigs.k8s.io/docs/) 用于在本地环境中运行 Kubernetes 集群。在 macOS 上，minikube 可以基于多种虚拟化技术上，可以选择[hyperkit](https://minikube.sigs.k8s.io/docs/drivers/hyperkit/)，这里因为我本地之前已经安装过 virtualbox (brew install --cask virtualbox)，所以我用的是 virtualbox 虚拟化技术。而且如果你本地之前已经安装了 docker desktop 的话，可以不需要下载 `hyperkit` 或者 `virtualbox`。
 
 >注意：如果本地已经安装了 docker desktop，那么可以使用 minikube start --vm-driver docker --container-runtime=docker 来快速启动 minikube
 
@@ -56,9 +56,9 @@ docker run hello-world
 
 ### 安装 k8s CLI 和 Terminal based UI
 
-如果本地没有k8s CLI `kubectl` 的话，需要安装一下
+如果你不想使用 `minikube kubectl` 或者配置相关环境变量来进行下面的教学的话，可以考虑直接安装 `kubectl`。
 
-```bash
+```shell
 brew install kubectl
 ```
 
@@ -66,13 +66,15 @@ brew install kubectl
 
 在 docker hun(https://hub.docker.com/) 中注册账号，并且使用 login 登录账号。
 
-```
+```shell
 docker login
 ```
 
 ## Container
 
-新建一个 `main.go` 的 golang 文件，里面写的是 `v1` 版本的代码，逻辑很简单，创建一个 `http server`，调用配置端口 `3000` 返回字符串 `[v1] Hello, Kubernetes!`。
+> Container (容器) 是一种沙盒技术。顾名思义，沙盒就是能够像一个集装箱一样，把你的应用“装”起来的技术。这样，应用与应用之间，就因为有了边界而不至于相互干扰;而被装进集装箱的应用，也可以被方便地搬来搬去。
+
+我们来创建一个后续 k8s 教程需要的容器镜像，首先新建一个 `main.go` 的 golang 文件，里面写的是 `v1` 版本的代码，逻辑很简单，创建一个 `http server`，调用配置端口 `3000` 返回字符串 `[v1] Hello, Kubernetes!`。
 
 ```go
 package main
@@ -205,9 +207,7 @@ kubectl delete -f nginx.yaml
 # pod "nginx" deleted
 ```
 
-### 作业一：Hellok8s Pod
-
-根据我们在 `container` 的那节构建的 `hellok8s:v1` 的镜像，编写出 `pod` 的资源文件。并通过 `port-forward` 到本地的 `3000` 端口进行访问，最终得到字符串 `[v1] Hello, Kubernetes!`。
+根据我们在 `container` 的那节构建的 `hellok8s:v1` 的镜像，同时参考 `nginx` pod 的资源定义，我们很容易的编写出  `hellok8s:v1`  `pod` 的资源文件。并通过 `port-forward` 到本地的 `3000` 端口进行访问，最终得到字符串 `[v1] Hello, Kubernetes!`。
 
 ```yaml
 # hellok8s.yaml
