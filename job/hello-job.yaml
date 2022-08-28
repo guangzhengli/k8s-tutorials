@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: echo-job
+  name: hello-job
 spec:
   parallelism: 3
   completions: 5
@@ -11,4 +11,7 @@ spec:
       containers:
         - name: echo
           image: busybox
-          command: ["echo", "Running in a job"]
+          command:
+            - "bin/sh"
+            - "-c"
+            - "for i in 1 2 3 4 5 6 7 8 9 ; do echo $i ; done"
