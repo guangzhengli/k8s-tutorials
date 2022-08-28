@@ -1,15 +1,18 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: echo-cronjob
+  name: hello-cronjob
 spec:
   schedule: "* * * * *" # Every minute
   jobTemplate:
     spec:
       template:
         spec:
-          restartPolicy: OnFailure
+          restartPolicy: Never
           containers:
             - name: echo
               image: busybox
-              command: ["echo", "Triggered by a CronJob"]
+              command:
+                - "bin/sh"
+                - "-c"
+                - "for i in 1 2 3 4 5 6 7 8 9 ; do echo $i ; done"

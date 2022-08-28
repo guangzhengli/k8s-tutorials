@@ -1394,7 +1394,7 @@ Cron 时间表语法
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: echo-cronjob
+  name: hello-cronjob
 spec:
   schedule: "* * * * *" # Every minute
   jobTemplate:
@@ -1408,7 +1408,20 @@ spec:
               command: [for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done]
 ```
 
-TODO
+使用命令和 Job 也基本保持一致，这里就不过多赘述。
+
+```shell
+kubectl apply -f hello-cronjob.yaml
+# cronjob.batch/hello-cronjob created
+
+kubectl get cronjob                
+# NAME            SCHEDULE    SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+# hello-cronjob   * * * * *   False     0        <none>          8s
+
+kubectl get pods   
+# NAME                                   READY   STATUS      RESTARTS   AGE
+# hello-cronjob-27694609--1-2nmdx        0/1     Completed   0          15s
+```
 
 ## helm
 
