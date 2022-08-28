@@ -1,6 +1,6 @@
 apiVersion: v2
-name: helm-hello
-description: A Helm chart for Kubernetes
+name: hello-helm
+description: A helm tutorial in https://github.com/guangzhengli/kubernetes_workshop
 
 # A chart can be either an 'application' or a 'library' chart.
 #

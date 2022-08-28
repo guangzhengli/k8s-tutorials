@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s
+  name: hellok8s-deployment
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: hellok8s
@@ -12,16 +12,12 @@ spec:
       labels:
         app: hellok8s
     spec:
-      volumes:
-        - name: config
-          configMap:
-            name: hellok8s-config
       containers:
         - image: guangzhengli/hellok8s:v4
           name: hellok8s-container
           env:
-            - name: MESSAGE
+            - name: DB_URL
               valueFrom:
                 configMapKeyRef:
                   name: hellok8s-config
-                  key: MESSAGE
+                  key: DB_URL
