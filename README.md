@@ -143,7 +143,7 @@ brew install kubectl
 
 ### 注册 docker hub 账号登录
 
-因为默认 minikube 使用的镜像地址是 DockerHub，所以我们还需要在 docker hun(https://hub.docker.com/) 中注册账号，并且使用 login 命令登录账号。
+因为默认 minikube 使用的镜像地址是 DockerHub，所以我们还需要在 DockerHub (https://hub.docker.com/) 中注册账号，并且使用 login 命令登录账号。
 
 ```shell
 docker login
@@ -310,7 +310,7 @@ kubectl port-forward hellok8s 3000:3000
 
 在生产环境中，我们基本上不会直接管理 pod，我们需要 `kubernetes` 来帮助我们来完成一些自动化操作，例如自动扩容或者自动升级版本。可以想象在生产环境中，我们手动部署了 10 个 `hellok8s:v1` 的 pod，这个时候我们需要升级成 `hellok8s:v2` 版本，我们难道需要一个一个的将 `hellok8s:v1` 的 pod 手动升级吗？
 
-这个时候就需要我们来看 `kubeates` 的另外一个资源 `deployment`，来帮助我们管理 pod。
+这个时候就需要我们来看 `kubernetes` 的另外一个资源 `deployment`，来帮助我们管理 pod。
 
 ### 扩容
 
@@ -340,7 +340,7 @@ spec:
 
 在 `spec` 里面表示，首先 `replicas` 表示的是部署的 pod 副本数量，`selector` 里面表示的是 `deployment` 资源和 `pod` 资源关联的方式，这里表示 `deployment` 会管理 (selector) 所有 `labels=hellok8s` 的 pod。
 
-`template` 的内容是用来定义 `pod` 资源的，你会发现和作业一：Hellok8s Pod 资源的定义是差不多的，唯一的区别是我们需要加上 `metadata.labels` 来和上面的 `selector.matchLabels` 对应起来。来表明 pod 是被 deployment 管理，不用在`template` 里面加上 `metadata.name` 是因为 deployment 会主动为我们创建 pod 的唯一`name`。
+`template` 的内容是用来定义 `pod` 资源的，你会发现和 Hellok8s Pod 资源的定义是差不多的，唯一的区别是我们需要加上 `metadata.labels` 来和上面的 `selector.matchLabels` 对应起来。来表明 pod 是被 deployment 管理，不用在`template` 里面加上 `metadata.name` 是因为 deployment 会自动为我们创建 pod 的唯一`name`。
 
 接下来输入下面的命令，可以创建 `deployment` 资源。通过 `get` 和 `delete pod` 命令，我们会初步感受 deployment 的魅力。**每次创建的 pod 名称都会变化，某些命令记得替换成你的 pod 的名称**
 
@@ -526,6 +526,8 @@ spec:
       - image: guangzhengli/hellok8s:v2
         name: hellok8s-container
 ```
+
+使用 `kubectl apply -f deployment.yaml` 来重新创建 `v2` 的资源，可以通过 `kubectl get pods --watch` 来观察 pod 的创建销毁情况，是否如下图所示。
 
 ![rollingupdate](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/rollingupdate.png)
 
