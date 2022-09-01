@@ -3,9 +3,8 @@
 经过前面几节的练习，可能你会有一些疑惑：
 
 * 为什么 pod 不就绪 (Ready) 的话，`kubernetes` 不会将流量重定向到该 pod，这是怎么做到的？
-* 前面访问服务的方式是通过 `port-forword` 将 pod 的端口暴露到本地，不仅需要写对 pod 的名字，一旦 deployment 重新创建新的 pod，pod 名字和 pod 的 IP 地址也会随之变化，有没有一个地址能让我们稳定访问？
-* `port-forword` 的方式需要有权限访问 `kubernetes` 集群才能做到，难道生产环境也能这么做吗？
-* 如果部署了多个副本 pod，如何做负载均衡？
+* 前面访问服务的方式是通过 `port-forword` 将 pod 的端口暴露到本地，不仅需要写对 pod 的名字，一旦 deployment 重新创建新的 pod，pod 名字和 IP 地址也会随之变化，如何保证稳定的访问地址呢？。
+* 如果使用 deployment 部署了多个 Pod 副本，如何做负载均衡呢？
 
 `kubernetes` 提供了一种名叫 `Service` 的资源帮助解决这些问题，它为 pod 提供一个稳定的 Endpoint。Servie 位于 pod 的前面，负责接收请求并将它们传递给它后面的所有pod。一旦服务中的 Pod 集合发生更改，Endpoints 就会被更新，请求的重定向自然也会导向最新的 pod。
 
@@ -64,7 +63,7 @@ spec:
           name: hellok8s-container
 ```
 
-接下来是 `Service` 资源的定义，我们使用 `ClusterIP` 的方式定义 Service，通过 `kubernetes` 集群的内部 IP 暴露服务，当我们只需要让集群中运行的其他应用程序访问我们的pod时，就可以使用这种类型的服务。创建一个 service-hellok8s-clusterip.yaml` 文件。
+接下来是 `Service` 资源的定义，我们使用 `ClusterIP` 的方式定义 Service，通过 `kubernetes` 集群的内部 IP 暴露服务，当我们只需要让集群中运行的其他应用程序访问我们的 pod 时，就可以使用这种类型的Service。首先创建一个 service-hellok8s-clusterip.yaml` 文件。
 
 ``` yaml
 apiVersion: v1
@@ -80,17 +79,30 @@ spec:
     targetPort: 3000
 ```
 
+首先通过 `kubectl get endpoints` 来看看 Endpoint。被 selector 选中的 Pod，就称为 Service 的 Endpoints。它维护着 Pod 的 IP 地址，只要服务中的 Pod 集合发生更改，Endpoints 就会被更新。通过 `kubectl get pod -o wide` 命令获取 Pod 更多的信息，可以看到 3 个 Pod 的 IP 地址和 Endpoints 中是保持一致的，你可以试试增大或减少 Deployment 中 Pod 的 replicas，观察 Endpoints 会不会发生变化。
+
 ```shell
 kubectl apply -f service-hellok8s-clusterip.yaml
+
+kubectl get endpoints
+# NAME                         ENDPOINTS                                          AGE
+# service-hellok8s-clusterip   172.17.0.10:3000,172.17.0.2:3000,172.17.0.3:3000   10s
+
+kubectl get pod -o wide
+# NAME                                   READY   STATUS    RESTARTS   AGE    IP           NODE 
+# hellok8s-deployment-5d5545b69c-24lw5   1/1     Running   0          112s   172.17.0.7   minikube 
+# hellok8s-deployment-5d5545b69c-9g94t   1/1     Running   0          112s   172.17.0.3   minikube
+# hellok8s-deployment-5d5545b69c-9gm8r   1/1     Running   0          112s   172.17.0.2   minikube
+# nginx                                  1/1     Running   0          112s   172.17.0.9   minikube
 
 kubectl get service
 # NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 # service-hellok8s-clusterip   ClusterIP   10.104.96.153   <none>        3000/TCP   10s
 ```
 
-我们可以通过在集群其它应用中访问 `service-hellok8s-clusterip` 的 IP 地址 `10.104.96.153` 来访问 `hellok8s:v3` 服务。
+接着我们可以通过在集群其它应用中访问 `service-hellok8s-clusterip` 的 IP 地址 `10.104.96.153` 来访问 `hellok8s:v3` 服务。
 
-这里通过在集群内创建一个 `nginx` 来访问。创建后进入 `nginx` 容器来用 `curl` 命令访问 `service-hellok8s-clusterip` 。
+这里通过在集群内创建一个 `nginx` 来访问 `hellok8s` 服务。创建后进入 `nginx` 容器来用 `curl` 命令访问 `service-hellok8s-clusterip` 。
 
 ```yaml
 apiVersion: v1
