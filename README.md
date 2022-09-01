@@ -175,11 +175,11 @@ func main() {
 
 在以前，如果你想将这段代码运行起来并测试一下。你首先需要懂得如何下载 golang 的安装包进行安装，接着需要懂得 `golang module` 的基本使用，最后还需要了解 golang 的编译和运行命令，才能将该代码运行起来。甚至在过程中，可能会因为环境变量问题、操作系统问题、处理器架构等问题导致编译或运行失败。
 
-但是通过容器技术，只需要上面的代码，附带着对应的容器 `Dockerfile` 文件，那么你就不需要 golang 的任何知识，也能将代码顺利运行起来。
+但是通过 Container (容器) 技术，只需要上面的代码，附带着对应的容器 `Dockerfile` 文件，那么你就不需要 golang 的任何知识，也能将代码顺利运行起来。
 
-> Container (容器) 是一种沙盒技术。它是基于 Linux 中 Namespace / Cgroups / chroot 等技术结合而成，更多技术细节可以参看这个视频 [如何自己实现一个容器](https://www.youtube.com/watch?v=8fi7uSYlOdc)。
+> Container (容器) 是一种沙盒技术。它是基于 Linux 中 Namespace / Cgroups / chroot 等技术组合而成，更多技术细节可以参照这个视频 [如何自己实现一个容器](https://www.youtube.com/watch?v=8fi7uSYlOdc)。
 
-下面就是 Go 代码对应的 `Dockerfile`，简单的方案是直接使用 golang 的 alpine 镜像来打包，但是因为我们后续练习需要频繁的推送镜像到 DockerHub 和拉取镜像到 k8s 集群中，为了优化网络速度，我们选择先在 `golang:1.16-buster` 中将上述 Go 代码编译成二进制文件，再将二进制文件复制到 `base-debian10` 镜像中运行 (Dockerfile 不理解没有关系，不影响后续教程学习)。
+下面就是 Go 代码对应的 `Dockerfile`，简单的方案是直接使用 golang 的 alpine 镜像来打包，但是因为我们后续练习需要频繁的推送镜像到 DockerHub 和拉取镜像到 k8s 集群中，为了优化网络速度，我们选择先在 `golang:1.16-buster` 中将上述 Go 代码编译成二进制文件，再将二进制文件复制到 `base-debian10` 镜像中运行 (Dockerfile 不理解没有关系，不影响后续学习)。
 
 这样我们可以将 300MB 大小的镜像变成只有 20MB 的镜像，甚至压缩上传到 DockerHub 后大小只有 10MB！
 
@@ -202,7 +202,7 @@ EXPOSE 3000
 ENTRYPOINT ["/main"]
 ```
 
-需要注意 `main.go` 文件需要和 `Dockerfile` 文件在同一个目录下，执行下方 `docker build` 命令，第一次需要耐心等待拉取基础镜像。并且**需要注意将 `guangzhengli` 替换成自己的 `DockerHub` 账号名称**。 这样我们后续可以推送镜像到自己注册的  `DockerHub` 仓库当中。
+需要注意 `main.go` 文件需要和 `Dockerfile` 文件在同一个目录下，执行下方 `docker build` 命令，第一次需要耐心等待拉取基础镜像。并且**需要注意将命令中 `guangzhengli` 替换成自己的 `DockerHub` 注册的账号名称**。 这样我们后续可以推送镜像到自己注册的  `DockerHub` 仓库当中。
 
 ```shell
 docker build . -t guangzhengli/hellok8s:v1
@@ -233,13 +233,15 @@ docker run -p 3000:3000 --name hellok8s -d guangzhengli/hellok8s:v1
 docker push guangzhengli/hellok8s:v1
 ```
 
-经过这一节的练习，有没有对容器的强大有一个初步的认识呢？可以想象当你想部署一个更复杂的服务时，例如 Nginx，MySQL，Redis。你只需要到 [DockerHub 搜索](https://hub.docker.com/search?q=) 中搜索对应的镜像，通过 `docker pull` 下载镜像，`docker run` 启动服务即可！而无需关系依赖和各种配置！
+经过这一节的练习，有没有对容器的强大有一个初步的认识呢？可以想象当你想部署一个更复杂的服务时，例如 Nginx，MySQL，Redis。你只需要到 [DockerHub 搜索](https://hub.docker.com/search?q=) 中搜索对应的镜像，通过 `docker pull` 下载镜像，`docker run` 启动服务即可！而无需关心依赖和各种配置！
 
 ## Pod
 
- `pod` 是我们练习的第一个 k8s 资源，在了解 `pod` 和  `container` 的区别之前，我们可以先创建一个简单的 pod 试试，  
+如果在生产环境中运行的都是独立的单体服务，那么 Container (容器) 也就够用了，但是在实际的生产环境中，维护着大规模的集群和各种不同的服务，服务之间往往存在着各种各样的关系。而这些关系的处理，才是手动管理最困难的地方。
 
-我们先创建 `nginx.yaml` 文件。
+**Pod** 是我们将要创建的第一个 k8s 资源，也是可以在 Kubernetes 中创建和管理的、最小的可部署的计算单元。在了解 `pod` 和  `container` 的区别之前，我们可以先创建一个简单的 pod 试试，  
+
+我们先创建 `nginx.yaml` 文件，编写一个可以创建 `nginx` 的 Pod。
 
 ```yaml
 # nginx.yaml
@@ -255,15 +257,25 @@ spec:
 
 其中  `kind` 表示我们要创建的资源是 `Pod` 类型，  `metadata.name` 表示要创建的 pod 的名字，这个名字需要是唯一的。   `spec.containers` 表示要运行的容器的名称和镜像名称。镜像默认来源 `DockerHub`。
 
-我们运行第一条 k8s 命令 `kubectl apply -f nginx.yaml` 命令启动 pod。
+我们运行第一条 k8s 命令 `kubectl apply -f nginx.yaml` 命令来创建 `nginx`  Pod。
+
+接着通过 `kubectl get pods` 来查看 pod 是否正常启动。
+
+最后通过 `kubectl port-forward nginx-pod 4000:80` 命令将 `nginx` 默认的 `80` 端口映射到本机的 `4000` 端口，打开浏览器或者 `curl` 来访问 `http://127.0.0.1:4000` , 查看是否成功访问 `nginx` 默认页面！
 
 ``` shell
-kubectl apply -f nginx.yaml
+kubectl apply -f nginx.yaml        
+# pod/nginx-pod created
+
+kubectl get pods
+# nginx-pod         1/1     Running   0           6s
+
+kubectl port-forward nginx-pod 4000:80
+# Forwarding from 127.0.0.1:4000 -> 80
+# Forwarding from [::1]:4000 -> 80
 ```
 
-我们可以通过 `kubectl get pods` 来查看 pod 是否正常启动，
-
-通过命令下面的命令来配置 `nginx` 的首页内容
+`kubectl exec -it` 可以用来进入 Pod 内容器的 Shell。通过命令下面的命令来配置 `nginx` 的首页内容。
 
 ```shell
 kubectl exec -it nginx-pod /bin/bash
@@ -277,11 +289,11 @@ kubectl port-forward nginx-pod 4000:80
 
 ### Pod 与 Container 的不同
 
-回到 `pod` 和  `container` 的区别，我们会发现刚刚创建出来的资源如下图所示，在最内层是我们的服务 `nginx`，运行在 `container` 中， `container` (容器) 的本质是进程，而 `pod` 是管理这一组进程的资源。
+回到 `pod` 和  `container` 的区别，我们会发现刚刚创建出来的资源如下图所示，在最内层是我们的服务 `nginx`，运行在 `container` 容器当中， `container` (容器) 的本质是进程，而 `pod` 是管理这一组进程的资源。
 
 ![nginx_pod](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/nginx_pod.png)
 
-所以自然 `pod` 可以管理多个 `container`，在某些场景例如 `container` 之间需要文件交换(日志收集)，本地网络通信需求(使用 localhost 或者 Socket 文件进行本地通信)，在这些场景中使用 `pod` 管理多个 `container` 就非常的推荐。如下图所示：
+所以自然 `pod` 可以管理多个 `container`，在某些场景例如服务之间需要文件交换(日志收集)，本地网络通信需求(使用 localhost 或者 Socket 文件进行本地通信)，在这些场景中使用 `pod` 管理多个 `container` 就非常的推荐。而这，也是 k8s 如何处理服务之间复杂关系的第一个例子，如下图所示：
 
 ![pod](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/pod.png)
 
@@ -301,7 +313,9 @@ kubectl delete -f nginx.yaml
 # pod "nginx" deleted
 ```
 
-根据我们在 `container` 的那节构建的 `hellok8s:v1` 的镜像，同时参考 `nginx` pod 的资源定义，我们很容易的编写出  `hellok8s:v1`  `pod` 的资源文件。并通过 `port-forward` 到本地的 `3000` 端口进行访问，最终得到字符串 `[v1] Hello, Kubernetes!`。
+最后，根据我们在 `container` 的那节构建的 `hellok8s:v1` 的镜像，同时参考 `nginx` pod 的资源定义，你能独自编写出  `hellok8s:v1`  Pod 的资源文件吗。并通过 `port-forward` 到本地的 `3000` 端口进行访问，最终得到字符串 `[v1] Hello, Kubernetes!`。
+
+`hellok8s:v1` Pod 资源定义和相应的命令如下所示：
 
 ```yaml
 # hellok8s.yaml
@@ -316,6 +330,8 @@ spec:
 ```
 
 ```shell
+kubectl apply -f hellok8s.yaml
+
 kubectl get pods
 
 kubectl port-forward hellok8s 3000:3000

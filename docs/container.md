@@ -24,7 +24,7 @@ func main() {
 
 在以前，如果你想将这段代码运行起来并测试一下。你首先需要懂得如何下载 golang 的安装包进行安装，接着需要懂得 `golang module` 的基本使用，最后还需要了解 golang 的编译和运行命令，才能将该代码运行起来。甚至在过程中，可能会因为环境变量问题、操作系统问题、处理器架构等问题导致编译或运行失败。
 
-但是通过容器技术，只需要上面的代码，附带着对应的容器 `Dockerfile` 文件，那么你就不需要 golang 的任何知识，也能将代码顺利运行起来。
+但是通过 Container (容器) 技术，只需要上面的代码，附带着对应的容器 `Dockerfile` 文件，那么你就不需要 golang 的任何知识，也能将代码顺利运行起来。
 
 > Container (容器) 是一种沙盒技术。它是基于 Linux 中 Namespace / Cgroups / chroot 等技术结合而成，更多技术细节可以参看这个视频 [如何自己实现一个容器](https://www.youtube.com/watch?v=8fi7uSYlOdc)。
 
