@@ -1365,7 +1365,10 @@ echo "ZGJfcGFzc3dvcmQK" | base64 -d
 # db_password
 ```
 
+这里将 Base64 编码过后的值，填入对应的 key - value 中。
+
 ```yaml
+# hellok8s-secret.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -1375,6 +1378,7 @@ data:
 ```
 
 ```yaml
+# hellok8s.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1382,7 +1386,7 @@ metadata:
 spec:
   containers:
     - name: hellok8s-container
-      image: guangzhengli/hellok8s:v4
+      image: guangzhengli/hellok8s:v5
       env:
         - name: DB_PASSWORD
           valueFrom:
@@ -1391,7 +1395,42 @@ spec:
               key: DB_PASSWORD
 ```
 
-Secret 的使用方法和前面教程中 ConfigMap 基本一致，这里就不再过多赘述。
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	host, _ := os.Hostname()
+	dbPassword := os.Getenv("DB_PASSWORD")
+	io.WriteString(w, fmt.Sprintf("[v5] Hello, Kubernetes! From host: %s, Get Database Connect Password: %s", host, dbPassword))
+}
+
+func main() {
+	http.HandleFunc("/", hello)
+	http.ListenAndServe(":3000", nil)
+}
+```
+
+在代码中读取 `DB_PASSWORD` 环境变量，直接返回对应字符串。Secret 的使用方法和前面教程中 ConfigMap 基本一致，这里就不再过多赘述。
+
+```shell
+docker build . -t guangzhengli/hellok8s:v5
+
+docker push guangzhengli/hellok8s:v5
+
+kubectl apply -f hellok8s-secret.yaml
+
+kubectl apply -f hellok8s.yaml
+
+kubectl port-forward hellok8s-pod 3000:3000
+```
+
 
 ## Job
 
