@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: hello-ingress
+  name: {{ .Values.application.name }}-ingress
   annotations:
     # We are defining this annotation to prevent nginx
     # from redirecting requests to `https` for now

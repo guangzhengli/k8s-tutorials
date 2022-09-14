@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hellok8s-deployment
+  name: {{ .Values.application.name }}-deployment
 spec:
-  replicas: 3
+  replicas: {{ .Values.application.hellok8s.replicas }}
   selector:
     matchLabels:
       app: hellok8s
@@ -13,11 +13,20 @@ spec:
         app: hellok8s
     spec:
       containers:
-        - image: guangzhengli/hellok8s:v4
+        - image: {{ .Values.application.hellok8s.image }}
           name: hellok8s-container
           env:
             - name: DB_URL
               valueFrom:
                 configMapKeyRef:
-                  name: hellok8s-config
+                  name: {{ .Values.application.name }}-config
                   key: DB_URL
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.application.name }}-secret
+                  key: DB_PASSWORD
+            - name: NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: MESSAGE
+              value: {{ .Values.application.hellok8s.message }}

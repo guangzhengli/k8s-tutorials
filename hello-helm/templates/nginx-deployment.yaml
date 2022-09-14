@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: nginx-deployment
 spec:
-  replicas: 2
+  replicas: {{ .Values.application.nginx.replicas }}
   selector:
     matchLabels:
       app: nginx
@@ -13,5 +13,5 @@ spec:
         app: nginx
     spec:
       containers:
-      - image: nginx
+      - image: {{ .Values.application.nginx.image }}
         name: nginx-container
