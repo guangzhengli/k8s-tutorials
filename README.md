@@ -1,1 +1,0 @@
-Install Hello Helm charts by github action.
