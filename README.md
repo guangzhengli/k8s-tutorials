@@ -1889,11 +1889,11 @@ kubectl get pods -n dev
 # nginx-deployment-d47fd7f66-cgst2     1/1     Running   0          4m23s
 ```
 
-上面的例子说明我们可以一行命令在一个新的 namespace 环境中安装所有需要的 k8s 资源！这也同样说明我们教程需要的所有 k8s 资源，可以快速的进行打包、分发和下载！
+除此之外，还可以使用 '--set-file' 设置独立的值，类似于 `helm upgrade --install hello-helm -f values.yaml -f values-dev.yaml --set application.hellok8s.message="It works with set helm values" -n dev .` 方式在命令中设置 values 的值，可以随意修改相关配置，此方法在 CICD 中经常用到。
 
 ### helm chart 打包和发布
 
-//TODO
+上面的例子说明我们可以一行命令在一个新的 namespace 环境中安装所有需要的 k8s 资源！这也同样说明我们教程需要的所有 k8s 资源，可以快速的进行打包、分发和下载！
 
 ## Dashboard(TODO)
 
