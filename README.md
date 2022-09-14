@@ -1893,7 +1893,18 @@ kubectl get pods -n dev
 
 ### helm chart 打包和发布
 
-上面的例子说明我们可以一行命令在一个新的 namespace 环境中安装所有需要的 k8s 资源！这也同样说明我们教程需要的所有 k8s 资源，可以快速的进行打包、分发和下载！
+上面的例子说明我们可以用一行命令在一个新的环境中安装所有需要的 k8s 资源！这也同样说明我们教程需要的所有 k8s 资源，可以快速的进行打包、分发和下载！
+
+在 `hello-helm` 目录下，执行
+
+```shell
+helm package .
+# Successfully packaged chart and saved it to: /Users/guangzheng.li/workspace/k8s-tutorials/hello-helm/hello-helm-0.1.0.tgz
+
+helm repo index .
+```
+
+
 
 ## Dashboard(TODO)
 
