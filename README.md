@@ -1853,6 +1853,44 @@ curl http://192.168.59.100/hello
 # [v6] Hello, Helm! Message from helm values: It works with Helm Values!, From namespace: default, From host: hellok8s-deployment-57d7df7964-482xw, Get Database Connect URL: http://DB_ADDRESS_DEFAULT, Database Connect Password: db_password
 ```
 
+#### 多环境配置
+
+使用 Helm 也很容易多环境部署，新建 `values-dev.yaml` 文件，里面内容自定义 `dev` 环境需要的配置信息。
+
+```yaml
+application:
+  hellok8s:
+    message: "It works with Helm Values values-dev.yaml!"
+    database:
+      url: "http://DB_ADDRESS_DEV"
+      password: "db_password_dev"
+```
+
+可以多次指定'--values -f'参数，最后（最右边）指定的文件优先级最高，这里最右边的是 `values-dev.yaml` 文件，所以 `values-dev.yaml` 文件中的值会覆盖 `values.yaml` 中相同的值，`-n dev` 表示在名字为 dev 的 namespace 中创建 k8s 资源，执行完成后，我们可以通过 `curl` 命令看到返回的字符串中读取的是 `values-dev.yaml` 文件的配置，并且 `From namespace = dev`。
+
+```shell
+helm upgrade --install hello-helm -f values.yaml -f values-dev.yaml -n dev .
+
+# Release "hello-helm" does not exist. Installing it now.
+# NAME: hello-helm
+# NAMESPACE: dev
+# STATUS: deployed
+# REVISION: 1
+
+curl http://192.168.59.100/hello
+# [v6] Hello, Helm! Message from helm values: It works with Helm Values values-dev.yaml!, From namespace: dev, From host: hellok8s-deployment-f5fff9df-89sn6, Get Database Connect URL: http://DB_ADDRESS_DEV, Database Connect Password: db_password_dev
+
+kubectl get pods -n dev
+# NAME                                 READY   STATUS    RESTARTS   AGE
+# hellok8s-deployment-f5fff9df-89sn6   1/1     Running   0          4m23s
+# hellok8s-deployment-f5fff9df-tkh6g   1/1     Running   0          4m23s
+# hellok8s-deployment-f5fff9df-wmlpb   1/1     Running   0          4m23s
+# nginx-deployment-d47fd7f66-cdlmf     1/1     Running   0          4m23s
+# nginx-deployment-d47fd7f66-cgst2     1/1     Running   0          4m23s
+```
+
+上面的例子说明我们可以一行命令在一个新的 namespace 环境中安装所有需要的 k8s 资源！这也同样说明我们教程需要的所有 k8s 资源，可以快速的进行打包、分发和下载！
+
 ### helm chart 打包和发布
 
 //TODO
