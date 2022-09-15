@@ -470,3 +470,5 @@ jobs:
 接着配置仓库的 `Settings -> Pages -> Build and deployment -> Branch`，选择 `gh-pages` 分支，GitHub 会自动在 `https://username.github.io/project` 发布 helm chart。
 
 最后，你可以将自己的 helm charts 发布到社区中去，可以考虑发布到 [ArtifactHub](https://artifacthub.io/) 中，像本仓库生成的 helm charts 即发布在 [ArtifactHub hellok8s](https://artifacthub.io/packages/helm/hellok8s/hello-helm) 中。
+
+![tnvYFS](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/tnvYFS.png)
