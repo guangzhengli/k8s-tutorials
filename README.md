@@ -63,6 +63,7 @@ k8s 作为云原生时代的操作系统，学习它的必要性不言而喻，�
   - [Dashboard](#dashboard)
     - [kubernetes dashboard](#kubernetes-dashboard)
     - [K9s](#k9s)
+  - [Star History](#star-history)
 
 # kubernetes tutorials
 
@@ -2037,3 +2038,7 @@ minikube dashboard
 [K9s](https://k9scli.io/) 是一个基于 Terminal 的轻量级 UI，可以更加轻松的观察和管理已部署的 k8s 资源。使用方式非常简单，安装后输入 `k9s` 即可开启 Terminal Dashboard，更多用法可以参考官网。
 
 ![83ybd4](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/83ybd4.png)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=guangzhengli/k8s-tutorials&type=Date)](https://star-history.com/#guangzhengli/k8s-tutorials&Date)
