@@ -176,7 +176,7 @@ spec:
     nodePort: 30000
 ```
 
-创建 `service-hellok8s-nodeport` Servcie 后，使用 `curl` 命令或者浏览器访问 `http://192.168.59.100:30000` 可以得到结果。
+创建 `service-hellok8s-nodeport` Service 后，使用 `curl` 命令或者浏览器访问 `http://192.168.59.100:30000` 可以得到结果。
 
 ```shell
 kubectl apply -f service-hellok8s-nodeport.yaml
