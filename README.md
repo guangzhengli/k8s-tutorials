@@ -1491,7 +1491,7 @@ Job 完成时不会再创建新的 Pod，不过已有的 Pod [通常](https://ku
 
 ## CronJob
 
-*CronJob* 可以理解为定时任务，创建基于 Cron 时间调度的 [Jobs](https://kubernetes.ion/docs/concepts/workloads/controllers/job/)。
+*CronJob* 可以理解为定时任务，创建基于 Cron 时间调度的 [Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/)。
 
 > CronJob 用于执行周期性的动作，例如备份、报告生成等。 这些任务中的每一个都应该配置为周期性重复的（例如：每天/每周/每月一次）； 你可以定义任务开始执行的时间间隔。
 
