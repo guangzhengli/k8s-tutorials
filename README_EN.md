@@ -110,3 +110,91 @@ Since the default image address used by minikube is DockerHub, we also need to r
 ```shell
 docker login
 ```
+
+## Container
+
+Our journey begins with a piece of code. Create a new `main.go` file and copy the following code into it.
+
+```go
+package main
+
+import (
+	"io"
+	"net/http"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "[v1] Hello, Kubernetes!")
+}
+
+func main() {
+	http.HandleFunc("/", hello)
+	http.ListenAndServe(":3000", nil)
+}
+```
+
+The above is a string of code written in [Go](https://go.dev/), the code logic is very simple, first start the HTTP server, listen on port `3000` and return the string `[v1] Hello, Kubernetes!` when the route `/` is accessed.
+
+In the old days, if you wanted to get this code up and running and test it. You first needed to know how to download the golang installation package and install it, then you needed to know the basic use of `golang module`, and finally you needed to know the compile and run commands of golang to get that code up and running. Even in the process, it may fail to compile or run due to problems with environment variables, operating system issues, processor architecture, etc.
+
+But with Container (container) technology, all you need is the above code with the corresponding container `Dockerfile` file, then you don't need any knowledge of golang to get the code running smoothly.
+
+
+> **Container** is a sandbox technology. It is based on a combination of Namespace / Cgroups / chroot technologies in Linux. For more technical details, please refer to this video [How to implement a container by yourself](https://www.youtube.com/watch?v=8fi7uSYlOdc).
+
+
+The following is the corresponding `Dockerfile` for the Go code. The simple solution is to use the golang alpine image to package it directly, but since we need to push the image to DockerHub and pull the image to the k8s cluster frequently for subsequent exercises, we choose to run the Go code in `golang:1.16-buster` first in order to optimize the network speed. and then copy the binaries to the `base-debian10` image (it doesn't matter if you don't understand the Dockerfile, it doesn't affect the learning process).
+
+This way we can turn a 300MB image into a 20MB image, or even compress it and upload it to DockerHub with a size of 10MB!
+
+```dockerfile
+# Dockerfile
+FROM golang:1.16-buster AS builder
+RUN mkdir /src
+ADD . /src
+WORKDIR /src
+
+RUN go env -w GO111MODULE=auto
+RUN go build -o main .
+
+FROM gcr.io/distroless/base-debian10
+
+WORKDIR /
+
+COPY --from=builder /src/main /main
+EXPOSE 3000
+ENTRYPOINT ["/main"]
+```
+
+Note that the `main.go` file needs to be in the same directory as the `Dockerfile` file, execute the `docker build` command below, and wait patiently for the first time to pull the base image. And **be careful to replace `guangzhengli` in the command with your `DockerHub` registered account name**. This will allow us to push the image to our `DockerHub` repository.
+
+```shell
+docker build . -t guangzhengli/hellok8s:v1
+# Step 1/11 : FROM golang:1.16-buster AS builder
+# ...
+# ...
+# Step 11/11 : ENTRYPOINT ["/main"]
+# Successfully tagged guangzhengli/hellok8s:v1
+
+
+docker images
+# guangzhengli/hellok8s          v1         f956e8cf7d18   8 days ago      25.4MB
+```
+
+After the `docker build` command finishes we can check if the image was built successfully with the `docker images` command, and finally we execute the `docker run` command to start the container, with `-p` specifying `3000` as the port and `-d` specifying the name of the image that was just packaged successfully.
+
+```shell
+docker run -p 3000:3000 --name hellok8s -d guangzhengli/hellok8s:v1
+```
+
+After running successfully, you can access `http://127.0.0.1:3000` via your browser or `curl` to see if the string `[v1] Hello, Kubernetes!` was successfully returned.
+
+Here because I only use Docker CLI locally, and docker runtime is using `minikube`, so I need to call `minikube ip` first to return the minikube IP address, for example, `192.168.59.100` is returned, so I need to visit `http://192.168. 59.100:3000` to determine if the string `[v1] Hello, Kubernetes!` was successfully returned.
+
+Finally, make sure there are no problems, and use `docker push` to upload the image to the remote `DockerHub` repository, so that others can download and use it, as well as to facilitate the subsequent `Minikube` downloads.  **Be careful to replace `guangzhengli` with your own `DockerHub` account name**.
+
+```shell
+docker push guangzhengli/hellok8s:v1
+```
+
+After the exercises in this section, do you have an initial understanding of the power of containers? Imagine when you want to deploy a more complex service, such as Nginx, MySQL, Redis. All you need to do is go to [DockerHub search](https://hub.docker.com/search?q=) and search for the corresponding image, download the image via `docker pull`, and `docker run` to start the service. and start the service! No need to care about dependencies and configuration!
