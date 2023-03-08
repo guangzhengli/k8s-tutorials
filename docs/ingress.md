@@ -181,7 +181,7 @@ minikube service ingress-nginx-controller -n ingress-nginx --url
 # 第一个是http，第二个是https，这里我们只需要http，所以我们只需要第一个地址
 curl http://127.0.0.1:61691/hello
 # [v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-sn7mn
-curl curl http://127.0.0.1:61691/
+curl http://127.0.0.1:61691/
 # (....Thank you for using nginx.....)
 ```
 
