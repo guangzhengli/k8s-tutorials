@@ -2040,5 +2040,3 @@ minikube dashboard
 ![83ybd4](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/83ybd4.png)
 
 ## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=guangzhengli/k8s-tutorials&type=Date)](https://star-history.com/#guangzhengli/k8s-tutorials&Date)
