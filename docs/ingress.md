@@ -160,7 +160,32 @@ curl http://192.168.59.100/hello
 curl http://192.168.59.100/
 # (....Thank you for using nginx.....)
 ```
+这里和service一样，如果本地使用 Docker Desktop（minikube start --driver=docker）的话，那你大概率无法通过minikube ip获取到的ip地址来请求，你可以先通过`minikube service list`来查看服务列表，然后通过`minikube service ingress-nginx-controller -n ingress-nginx --url`来公开服务，然后通过`curl`或者浏览器来访问。
+```shell
+minikube service list
+# |---------------|------------------------------------|--------------|---------------------------|
+# |   NAMESPACE   |                NAME                | TARGET PORT  |            URL            |
+# |---------------|------------------------------------|--------------|---------------------------|
+# | default       | kubernetes                         | No node port |
+# | default       | service-hellok8s-clusterip         | No node port |
+# | default       | service-nginx-clusterip            | No node port |
+# | ingress-nginx | ingress-nginx-controller           | http/80      | http://192.168.49.2:32339 |
+# |               |                                    | https/443    | http://192.168.49.2:32223 |
+# | ingress-nginx | ingress-nginx-controller-admission | No node port |
+# | kube-system   | kube-dns                           | No node port |
+# |---------------|------------------------------------|--------------|---------------------------|
+minikube service ingress-nginx-controller -n ingress-nginx --url
+# http://127.0.0.1:61691      http
+# http://127.0.0.1:61692      https
+# ❗  Because you are using a Docker driver on windows, the terminal needs to be open to run it.
+# 第一个是http，第二个是https，这里我们只需要http，所以我们只需要第一个地址
+curl http://127.0.0.1:61691/hello
+# [v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-sn7mn
+curl curl http://127.0.0.1:61691/
+# (....Thank you for using nginx.....)
+```
 
+\
 上面的教程中将所有流量都发送到 Ingress 中，如下图所示：
 
 ![ingress](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/ingress.png)
