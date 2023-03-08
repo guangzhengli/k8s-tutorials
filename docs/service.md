@@ -197,7 +197,7 @@ curl http://192.168.59.100:30000
 curl http://192.168.59.100:30000
 # [v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-24lw5
 ```
-如果是在dockers上构建，那你大概率无法通过`minikube ip`获取到的ip地址来请求,因为在Darwin、Windows、WSL上使用Docker驱动，网络受限，无法直接访问Node IP。你可以通过`minikube service service-hellok8s-nodeport --url`来公开服务，然后通过`curl`或者浏览器访问。（关闭终端或者ctrl+c退出后，服务会自动关闭）
+如果本地使用 Docker Desktop（minikube start --driver=docker）的话，那你大概率无法通过`minikube ip`获取到的ip地址来请求,因为 docker 部分网络限制导致无法通过 ip 直连 docker container，这代表 NodePort 类型的 Service、Ingress 组件都无法通过 minikube ip 提供的 ip 地址来访问。无法直接访问Node IP。你可以通过`minikube service service-hellok8s-nodeport --url`来公开服务，然后通过`curl`或者浏览器访问。
 
 ```shell
 minikube service service-hellok8s-nodeport --url
