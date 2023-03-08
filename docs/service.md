@@ -6,7 +6,7 @@
 * 前面访问服务的方式是通过 `port-forword` 将 pod 的端口暴露到本地，不仅需要写对 pod 的名字，一旦 deployment 重新创建新的 pod，pod 名字和 IP 地址也会随之变化，如何保证稳定的访问地址呢？。
 * 如果使用 deployment 部署了多个 Pod 副本，如何做负载均衡呢？
 
-`kubernetes` 提供了一种名叫 `Service` 的资源帮助解决这些问题，它为 pod 提供一个稳定的 Endpoint。Servie 位于 pod 的前面，负责接收请求并将它们传递给它后面的所有pod。一旦服务中的 Pod 集合发生更改，Endpoints 就会被更新，请求的重定向自然也会导向最新的 pod。
+`kubernetes` 提供了一种名叫 `Service` 的资源帮助解决这些问题，它为 pod 提供一个稳定的 Endpoint。Service 位于 pod 的前面，负责接收请求并将它们传递给它后面的所有pod。一旦服务中的 Pod 集合发生更改，Endpoints 就会被更新，请求的重定向自然也会导向最新的 pod。
 
 ### ClusterIP
 
@@ -63,7 +63,7 @@ spec:
           name: hellok8s-container
 ```
 
-接下来是 `Service` 资源的定义，我们使用 `ClusterIP` 的方式定义 Service，通过 `kubernetes` 集群的内部 IP 暴露服务，当我们只需要让集群中运行的其他应用程序访问我们的 pod 时，就可以使用这种类型的Service。首先创建一个 service-hellok8s-clusterip.yaml` 文件。
+接下来是 `Service` 资源的定义，我们使用 `ClusterIP` 的方式定义 Service，通过 `kubernetes` 集群的内部 IP 暴露服务，当我们只需要让集群中运行的其他应用程序访问我们的 pod 时，就可以使用这种类型的Service。首先创建一个 service-hellok8s-clusterip.yaml 文件。
 
 ``` yaml
 apiVersion: v1
@@ -197,7 +197,17 @@ curl http://192.168.59.100:30000
 curl http://192.168.59.100:30000
 # [v3] Hello, Kubernetes!, From host: hellok8s-deployment-5d5545b69c-24lw5
 ```
+如果本地使用 Docker Desktop（minikube start --driver=docker）的话，那你大概率无法通过`minikube ip`获取到的ip地址来请求,因为 docker 部分网络限制导致无法通过 ip 直连 docker container，这代表 NodePort 类型的 Service、Ingress 组件都无法通过 minikube ip 提供的 ip 地址来访问。无法直接访问Node IP。你可以通过`minikube service service-hellok8s-nodeport --url`来公开服务，然后通过`curl`或者浏览器访问。
 
+```shell
+minikube service service-hellok8s-nodeport --url
+# http://127.0.0.1:50896
+# Because you are using a Docker driver on windows, the terminal needs to be open to run it.
+curl http://127.0.0.1:50896
+# [v3] Hello, Kubernetes!, From host: hellok8s-deployment-559cfdd58c-zp2pc
+curl http://127.0.0.1:50896
+# [v3] Hello, Kubernetes!, From host: hellok8s-deployment-559cfdd58c-2j2x2
+```
 ### LoadBalancer
 
 [`LoadBalancer`](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) 是使用云提供商的负载均衡器向外部暴露服务。 外部负载均衡器可以将流量路由到自动创建的 `NodePort` 服务和 `ClusterIP` 服务上，假如你在 [AWS](https://aws.amazon.com) 的 [EKS](https://aws.amazon.com/eks/) 集群上创建一个 Type 为 `LoadBalancer`  的 Service。它会自动创建一个 ELB ([Elastic Load Balancer](https://aws.amazon.com/elasticloadbalancing)) ，并可以根据配置的 IP 池中自动分配一个独立的 IP 地址，可以供外部访问。
