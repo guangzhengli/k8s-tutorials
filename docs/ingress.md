@@ -185,7 +185,6 @@ curl http://127.0.0.1:61691/
 # (....Thank you for using nginx.....)
 ```
 
-\
 上面的教程中将所有流量都发送到 Ingress 中，如下图所示：
 
 ![ingress](https://cdn.jsdelivr.net/gh/guangzhengli/PicURL@master/uPic/ingress.png)
