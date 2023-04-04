@@ -1530,7 +1530,11 @@ spec:
           containers:
             - name: echo
               image: busybox
-              command: [for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done]
+              command:
+                - "/bin/sh"
+              args:
+                - "-c"
+                - "for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done"
 ```
 
 使用命令和 Job 也基本保持一致，这里就不过多赘述。
