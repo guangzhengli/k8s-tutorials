@@ -1462,7 +1462,11 @@ spec:
       containers:
         - name: echo
           image: busybox
-          command: [for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done]
+          command:
+            - "/bin/sh"
+          args:
+            - "-c"
+            - "for i in 9 8 7 6 5 4 3 2 1 ; do echo $i ; done"
 ```
 
 通过下面的命令创建 job，可以通过 `kubectl get pods -w` 来观察 job 创建 pod 的过程和结果。最后可以通过 `logs` 命令查看日志。
