@@ -78,7 +78,7 @@ brew install kubectl
 
 ### 注册 docker hub 账号登录
 
-因为默认 minikube 使用的镜像地址是 DockerHub，所以我们还需要在 docker hun(https://hub.docker.com/) 中注册账号，并且使用 login 命令登录账号。
+因为默认 minikube 使用的镜像地址是 DockerHub，所以我们还需要在 DockerHub(https://hub.docker.com/) 中注册账号，并且使用 login 命令登录账号。
 
 ```shell
 docker login

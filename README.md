@@ -21,7 +21,6 @@ k8s 作为云原生时代的操作系统，学习它的必要性不言而喻，�
 * [job/cronjob](docs/job.md)
 * [helm](docs/helm.md)
 * [dashboard](docs/dashboard.md)
-* Translate English(未完成)
 
 下面是所有文档的集合：
 
