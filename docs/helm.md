@@ -1,4 +1,4 @@
-## Helm
+# Helm
 
 经过前面的教程，想必你已经对 kubernetes 的使用有了一定的理解。但是不知道你是否想过这样一个问题，就是我们前面教程中提到的所有资源，包括用 `pod`, `deployment`, `service`, `ingress`, `configmap`,`secret` 所有资源来部署一套完整的 `hellok8s` 服务的话，难道需要一个一个的 `kubectl apply -f` 来创建吗？如果换一个 namespace，或者说换一套 kubernetes 集群部署的话，又要重复性的操作创建的过程吗？
 
@@ -22,7 +22,7 @@ brew install helm
 
 Helm 的使用方式可以解释为：Helm 安装 *charts* 到 Kubernetes 集群中，每次安装都会创建一个新的 *release*。你可以在 Helm 的 chart *repositories* 中寻找新的 chart。
 
-### 用 helm 安装 hellok8s
+## 用 helm 安装 hellok8s
 开始本节教程前，我们先把之前手动创建的 hellok8s 相关的资源删除(防止使用 helm 创建同名的 k8s 资源失败)。
 
 在尝试自己创建 hellok8s helm chart 之前，我们可以先来熟悉一下怎么使用 helm chart。在这里我先创建好了一个 hellok8s（包括会创建 deployment, service, ingress, configmaps, secret）的 helm chart。通过 GitHub actions 生成放在了 [gh-pages](https://github.com/guangzhengli/k8s-tutorials/tree/gh-pages/) 分支下的 `index.yaml` 文件中。
@@ -79,7 +79,7 @@ curl http://192.168.59.100/hello
 # [v6] Hello, Helm! Message from helm values: It works with Helm Values[v2]!, From namespace: default, From host: hellok8s-deployment-598bbd6884-ttk78, Get Database Connect URL: http://DB_ADDRESS_DEFAULT, Database Connect Password: db_password
 ```
 
-### 创建 helm charts
+## 创建 helm charts
 
 在使用已经创建好的 hello-helm charts 来创建整个 hellok8s 资源后，你可能还是有很多的疑惑，包括 Chart 是如何生成和发布的，如何创建一个新的 Chart？在这节教程中，我们会尝试自己来创建 hello-helm Chart 来完成之前的操作。
 
@@ -177,7 +177,7 @@ application:
 
 例如之前教程中，将环境变量 `DB_URL` 定义在 k8s configmaps 中，那么该资源可以定义成如文件所示 `hellok8s-configmaps.yaml`。其中 `metadata.name` 的值是 `{{ .Values.application.name }}-config`，意思是从 `values.yaml` 文件中获取 `application.name` 的值 `hellok8s`，拼接 `-config` 字符串，这样创建出来的 configmaps 资源名称就是 `hellok8s-config`。
 
-同理 `{{ .Values.application.hellok8s.database.url }}` 就是获取值为  `http://DB_ADDRESS_DEFAULT`  放入 configmaps 对应 key 为 DB_URL 的 value 中。
+同理 `{{ .Values.application.hellok8s.database.url }}` 就是获取值为 `http://DB_ADDRESS_DEFAULT`  放入 configmaps 对应 key 为 DB_URL 的 value 中。
 
 ```yaml
 apiVersion: v1
@@ -312,7 +312,7 @@ kubectl get pods
 # nginx-deployment-d47fd7f66-tsqj5      1/1     Running   0          32m
 ```
 
-#### rollback
+## rollback
 
 Helm 也提供了 Rollback 的功能，我们先修改一下 `message: "It works with Helm Values[v2]!"` 加上 [v2]。
 
@@ -363,7 +363,7 @@ curl http://192.168.59.100/hello
 # [v6] Hello, Helm! Message from helm values: It works with Helm Values!, From namespace: default, From host: hellok8s-deployment-57d7df7964-482xw, Get Database Connect URL: http://DB_ADDRESS_DEFAULT, Database Connect Password: db_password
 ```
 
-#### 多环境配置
+## 多环境配置
 
 使用 Helm 也很容易多环境部署，新建 `values-dev.yaml` 文件，里面内容自定义 `dev` 环境需要的配置信息。
 
@@ -401,7 +401,7 @@ kubectl get pods -n dev
 
 除此之外，还可以使用 '--set-file' 设置独立的值，类似于 `helm upgrade --install hello-helm -f values.yaml -f values-dev.yaml --set application.hellok8s.message="It works with set helm values" -n dev .` 方式在命令中设置 values 的值，可以随意修改相关配置，此方法在 CICD 中经常用到。
 
-### helm chart 打包和发布
+## helm chart 打包和发布
 
 上面的例子展示了我们可以用一行命令在一个新的环境中安装所有需要的 k8s 资源！那么如何将 helm chart 打包、分发和下载呢？在官网中，提供了两种教程，一种是以 [GCS 存储的教程](https://helm.sh/zh/docs/howto/chart_repository_sync_example/)，还有一种是以 [GitHub Pages 存储的教程](https://helm.sh/zh/docs/howto/chart_releaser_action/)。
 
