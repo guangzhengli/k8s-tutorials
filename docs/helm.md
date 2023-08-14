@@ -177,7 +177,7 @@ application:
 
 例如之前教程中，将环境变量 `DB_URL` 定义在 k8s configmaps 中，那么该资源可以定义成如文件所示 `hellok8s-configmaps.yaml`。其中 `metadata.name` 的值是 `{{ .Values.application.name }}-config`，意思是从 `values.yaml` 文件中获取 `application.name` 的值 `hellok8s`，拼接 `-config` 字符串，这样创建出来的 configmaps 资源名称就是 `hellok8s-config`。
 
-同理 `{{ .Values.application.hellok8s.database.url }}` 就是获取值为 `http://DB_ADDRESS_DEFAULT`  放入 configmaps 对应 key 为 DB_URL 的 value 中。
+同理 `{{ .Values.application.hellok8s.database.url }}` 就是获取值为  `http://DB_ADDRESS_DEFAULT`  放入 configmaps 对应 key 为 DB_URL 的 value 中。
 
 ```yaml
 apiVersion: v1
@@ -363,7 +363,7 @@ curl http://192.168.59.100/hello
 # [v6] Hello, Helm! Message from helm values: It works with Helm Values!, From namespace: default, From host: hellok8s-deployment-57d7df7964-482xw, Get Database Connect URL: http://DB_ADDRESS_DEFAULT, Database Connect Password: db_password
 ```
 
-## 多环境配置
+### 多环境配置
 
 使用 Helm 也很容易多环境部署，新建 `values-dev.yaml` 文件，里面内容自定义 `dev` 环境需要的配置信息。
 
