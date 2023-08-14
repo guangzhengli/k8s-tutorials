@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Kubernetes 练习手册",
   description: "A tutorials for k8s",
+  srcExclude: ['**/README.md'],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
