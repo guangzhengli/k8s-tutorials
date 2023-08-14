@@ -1,3 +1,12 @@
+---
+prev:
+  text: 'Namespace'
+  link: '/docs/namespaces'
+next:
+  text: 'Secret'
+  link: '/docs/secert'
+---
+
 # ConfigMap
 
 上面的教程提到，我们在不同环境 `dev` `test` `uat` `prod` 中区分资源，可以让其资源独立互相不受影响，但是随之而来也会带来一些问题，例如不同环境的数据库的地址往往是不一样的，那么如果在代码中写同一个数据库的地址，就会出现问题。

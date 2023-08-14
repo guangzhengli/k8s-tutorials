@@ -1,3 +1,12 @@
+---
+prev:
+  text: 'Container'
+  link: '/docs/container'
+next:
+  text: 'Deployment'
+  link: '/docs/deployment'
+---
+
 # Pod
 
 如果在生产环境中运行的都是独立的单体服务，那么 Container (容器) 也就够用了，但是在实际的生产环境中，维护着大规模的集群和各种不同的服务，服务之间往往存在着各种各样的关系。而这些关系的处理，才是手动管理最困难的地方。

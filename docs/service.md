@@ -1,3 +1,12 @@
+---
+prev:
+  text: 'Deployment'
+  link: '/docs/deployment'
+next:
+  text: 'Ingress'
+  link: '/docs/ingress'
+---
+
 # Service
 
 经过前面几节的练习，可能你会有一些疑惑：

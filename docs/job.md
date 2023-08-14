@@ -1,3 +1,12 @@
+---
+prev:
+  text: 'Secret'
+  link: '/docs/secret'
+next:
+  text: 'Helm'
+  link: '/docs/helm'
+---
+
 # Job
 
 在实际的开发过程中，还有一类任务是之前的资源不能满足的，即一次性任务。例如常见的计算任务，只需要拿到相关数据计算后得出结果即可，无需一直运行。而处理这一类任务的资源就是 Job。

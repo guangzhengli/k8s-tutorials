@@ -1,3 +1,12 @@
+---
+prev:
+  text: 'Pod'
+  link: '/docs/pod'
+next:
+  text: 'Service'
+  link: '/docs/service'
+---
+
 # Deployment
 
 在生产环境中，我们基本上不会直接管理 pod，我们需要 `kubernetes` 来帮助我们来完成一些自动化操作，例如自动扩容或者自动升级版本。可以想象在生产环境中，我们手动部署了 10 个 `hellok8s:v1` 的 pod，这个时候我们需要升级成 `hellok8s:v2` 版本，我们难道需要一个一个的将 `hellok8s:v1` 的 pod 手动升级吗？

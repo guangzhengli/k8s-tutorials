@@ -1,3 +1,12 @@
+---
+prev:
+  text: 'ConfigMap'
+  link: '/docs/configmap'
+next:
+  text: 'Job'
+  link: '/docs/job'
+---
+
 # Secret
 
 上面提到，我们会选择以 configmap 的方式挂载配置信息，但是当我们的配置信息需要加密的时候， configmap 就无法满足这个要求。例如上面要挂载数据库密码的时候，就需要明文挂载。

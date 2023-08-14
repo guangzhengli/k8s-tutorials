@@ -1,3 +1,12 @@
+---
+prev:
+  text: 'Job'
+  link: '/docs/job'
+next:
+  text: 'Dashboard'
+  link: '/docs/dashboard'
+---
+
 # Helm
 
 经过前面的教程，想必你已经对 kubernetes 的使用有了一定的理解。但是不知道你是否想过这样一个问题，就是我们前面教程中提到的所有资源，包括用 `pod`, `deployment`, `service`, `ingress`, `configmap`,`secret` 所有资源来部署一套完整的 `hellok8s` 服务的话，难道需要一个一个的 `kubectl apply -f` 来创建吗？如果换一个 namespace，或者说换一套 kubernetes 集群部署的话，又要重复性的操作创建的过程吗？

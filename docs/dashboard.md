@@ -1,3 +1,10 @@
+---
+prev:
+  text: 'Helm'
+  link: '/docs/helm'
+next: false
+---
+
 # Dashboard
 
 ## kubernetes dashboard
