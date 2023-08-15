@@ -89,3 +89,7 @@
   --docsearch-primary-color: var(--vp-c-brand) !important;
 }
 
+.layout-comments {
+  margin-top: 2rem;
+}
+
