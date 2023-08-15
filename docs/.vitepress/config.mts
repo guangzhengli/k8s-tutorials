@@ -21,10 +21,13 @@ export default defineConfig({
   ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    search: {
+      provider: 'local'
+    },
     editLink: {
       pattern: 'https://github.com/guangzhengli/k8s-tutorials/edit/main/:path'
     },
-
+    logo: '/favicon.ico',
     nav: [
       { text: 'Home', link: '/' },
     ],
