@@ -10,12 +10,12 @@ export default defineConfig({
   },
   
   head: [
-    ['link', { rel: 'icon', href: '/base/favicon.ico' }],
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { name: 'author', content: 'Guangzheng Li' }],
     ['meta', { name: 'keywords', content: 'kubernetes, k8s, tutorials, workshop, practice, guangzheng li' }],
     ['meta', { name: 'og:title', content: 'Kubernetes 练习手册' }],
     ['meta', { name: 'og:description', content: 'A tutorials for k8s' }],
-    ['meta', { name: 'og:image', content: '/base/k8s.png' }],
+    ['meta', { name: 'og:image', content: '/k8s.png' }],
     ['meta', { name: 'og:url', content: 'https://k8s.guangzhengli.com' }],
     ['script', { async: '', src: 'https://umami-ochre-nu.vercel.app/umami.js', 'data-website-id': 'c566e0a6-b11d-4fdc-ab1c-fd0b5ac2d852', 'defer': '' }],
   ],
