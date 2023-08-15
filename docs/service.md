@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'Deployment'
-  link: '/docs/deployment'
+  link: 'deployment'
 next:
   text: 'Ingress'
-  link: '/docs/ingress'
+  link: 'ingress'
 ---
 
 # Service

@@ -2,7 +2,7 @@
 prev: false
 next:
   text: 'Container'
-  link: '/docs/container'
+  link: 'container'
 ---
 
 # 准备工作

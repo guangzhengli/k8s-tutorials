@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'Namespace'
-  link: '/docs/namespaces'
+  link: 'namespaces'
 next:
   text: 'Secret'
-  link: '/docs/secert'
+  link: 'secert'
 ---
 
 # ConfigMap

@@ -33,33 +33,33 @@ export default defineConfig({
       {
         text: '开始',
         items: [
-          { text: '准备工作', link: 'docs/pre' },
+          { text: '准备工作', link: 'pre' },
         ]
       },
       {
         text: 'Kubernetes',
         items: [
-          { text: 'Container', link: 'docs/container' },
-          { text: 'Pod', link: 'docs/pod' },
-          { text: 'Deployment', link: 'docs/deployment' },
-          { text: 'Service', link: 'docs/service' },
-          { text: 'Ingress', link: 'docs/ingress' },
-          { text: 'Namespace', link: 'docs/namespace' },
-          { text: 'ConfigMap', link: 'docs/configmap' },
-          { text: 'Secret', link: 'docs/secret' },
-          { text: 'Job', link: 'docs/job' },
+          { text: 'Container', link: 'container' },
+          { text: 'Pod', link: 'pod' },
+          { text: 'Deployment', link: 'deployment' },
+          { text: 'Service', link: 'service' },
+          { text: 'Ingress', link: 'ingress' },
+          { text: 'Namespace', link: 'namespace' },
+          { text: 'ConfigMap', link: 'configmap' },
+          { text: 'Secret', link: 'secret' },
+          { text: 'Job', link: 'job' },
         ]
       },
       {
         text: 'Helm',
         items: [
-          { text: 'Helm', link: 'docs/helm' },
+          { text: 'Helm', link: 'helm' },
         ]
       },
       {
         text: 'Others',
         items: [
-          { text: 'Dashboard', link: 'docs/dashboard' },
+          { text: 'Dashboard', link: 'dashboard' },
         ]
       }
     ],

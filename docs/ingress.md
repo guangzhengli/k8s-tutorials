@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'Service'
-  link: '/docs/service'
+  link: 'service'
 next:
   text: 'Namespace'
-  link: '/docs/namespace'
+  link: 'namespace'
 ---
 
 # Ingress

@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'Pod'
-  link: '/docs/pod'
+  link: 'pod'
 next:
   text: 'Service'
-  link: '/docs/service'
+  link: 'service'
 ---
 
 # Deployment

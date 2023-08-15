@@ -1,7 +1,7 @@
 ---
 prev:
   text: 'Helm'
-  link: '/docs/helm'
+  link: 'helm'
 next: false
 ---
 

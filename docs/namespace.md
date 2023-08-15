@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'Ingress'
-  link: '/docs/ingress'
+  link: 'ingress'
 next:
   text: 'ConfigMap'
-  link: '/docs/configmap'
+  link: 'configmap'
 ---
 
 # Namespace

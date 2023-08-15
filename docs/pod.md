@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'Container'
-  link: '/docs/container'
+  link: 'container'
 next:
   text: 'Deployment'
-  link: '/docs/deployment'
+  link: 'deployment'
 ---
 
 # Pod

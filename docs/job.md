@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'Secret'
-  link: '/docs/secret'
+  link: 'secret'
 next:
   text: 'Helm'
-  link: '/docs/helm'
+  link: 'helm'
 ---
 
 # Job

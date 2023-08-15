@@ -1,10 +1,10 @@
 ---
 prev:
   text: 'ConfigMap'
-  link: '/docs/configmap'
+  link: 'configmap'
 next:
   text: 'Job'
-  link: '/docs/job'
+  link: 'job'
 ---
 
 # Secret
