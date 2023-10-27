@@ -221,7 +221,7 @@ docker images
 # guangzhengli/hellok8s          v1         f956e8cf7d18   8 days ago      25.4MB
 ```
 
- `docker build`  命令完成后我们可以通过 `docker images` 命令查看镜像是否 build 成功，最后我们执行 `docker run` 命令将容器启动， `-p` 指定 `3000` 作为端口，`-d` 指定刚打包成功的镜像名称。
+ `docker build`  命令完成后我们可以通过 `docker images` 命令查看镜像是否 build 成功，最后我们执行 `docker run` 命令将容器启动， `-p` 指定 `3000` 作为端口，`-d` 指定容器后台运行。
 
 ```shell
 docker run -p 3000:3000 --name hellok8s -d guangzhengli/hellok8s:v1
