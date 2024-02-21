@@ -108,3 +108,19 @@ kubectl get pods
 
 kubectl port-forward hellok8s 3000:3000
 ```
+
+关于启动失败
+
+如果查看Pod的状态为 ErrImagePull 或者 ImagePullBackOff
+
+```
+NAME       READY   STATUS    RESTARTS   AGE
+hellok8s   0/1     ImagePullBackOff   0          22m
+```
+
+尝试切换为当前环境的docker-env, 删除pod, 然后重新构建镜像即可
++ 官方文档: [Pushing directly to the in-cluster Docker daemon (docker-env)](https://minikube.sigs.k8s.io/docs/handbook/pushing/)
+
+```shell
+eval $(minikube docker-env)
+```
