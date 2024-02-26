@@ -18,7 +18,7 @@ export default defineConfig({
     ['meta', { name: 'og:image', content: '/k8s.png' }],
     ['meta', { name: 'og:url', content: 'https://k8s-tutorials.pages.dev' }],
     ['meta', { name: 'google-site-verification', content: 'd13KXsNzbyvOCb8km5-Jja-m7nlizj8qJ_2mUSAOy2g' }],
-    ['script', { async: '', src: 'https://umami-ochre-nu.vercel.app/umami.js', 'data-website-id': 'c566e0a6-b11d-4fdc-ab1c-fd0b5ac2d852', 'defer': '' }],
+    ['script', { async: '', src: 'https://umami-ochre-nu.vercel.app/hugo-ladder', 'data-website-id': 'c566e0a6-b11d-4fdc-ab1c-fd0b5ac2d852', 'defer': '' }],
   ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
