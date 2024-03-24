@@ -4,7 +4,7 @@ prev:
   link: 'namespaces'
 next:
   text: 'Secret'
-  link: 'secert'
+  link: 'secret'
 ---
 
 # ConfigMap
