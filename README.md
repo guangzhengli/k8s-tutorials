@@ -144,6 +144,8 @@ docker run hello-world
 
 如果你不想使用 `minikube kubectl` 或者配置相关环境变量来进行下面的教学的话，可以考虑直接安装 `kubectl`。
 
+以下为MacOS 的安装方式，Linux & Windows 操作系统可以参考[官方文档](https://kubernetes.io/zh-cn/docs/tasks/tools/)快速安装。
+
 ```shell
 brew install kubectl
 ```
