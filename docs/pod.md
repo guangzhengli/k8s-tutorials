@@ -50,7 +50,7 @@ kubectl port-forward nginx-pod 4000:80
 `kubectl exec -it` 可以用来进入 Pod 内容器的 Shell。通过命令下面的命令来配置 `nginx` 的首页内容。
 
 ```shell
-kubectl exec -it nginx-pod /bin/bash
+kubectl exec -it nginx-pod -- /bin/bash
 
 echo "hello kubernetes by nginx!" > /usr/share/nginx/html/index.html
 
