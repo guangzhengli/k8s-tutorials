@@ -85,7 +85,7 @@ kubectl delete -f nginx.yaml
 # pod "nginx" deleted
 ```
 
-最后，根据我们在 `container` 的那节构建的 `hellok8s:v1` 的镜像，同时参考 `nginx` pod 的资源定义，你能独自编写出  `hellok8s:v1`  Pod 的资源文件吗。并通过 `port-forward` 到本地的 `3000` 端口进行访问，最终得到字符串 `[v1] Hello, Kubernetes!`。
+最后，根据我们在 `container` 的那节构建的 `hellok8s:v1` 的镜像，同时参考 `nginx` pod 的资源定义，你能独自编写出  `hellok8s:v1`  Pod 的资源文件吗？并通过 `port-forward` 到本地的 `3000` 端口进行访问，最终得到字符串 `[v1] Hello, Kubernetes!`。
 
 `hellok8s:v1` Pod 资源定义和相应的命令如下所示：
 
