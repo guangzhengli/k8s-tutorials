@@ -2057,6 +2057,8 @@ minikube dashboard
 如果这份教程对你有帮助，欢迎请作者喝杯咖啡。
 https://guangzhengli.com/sponsors
 
+Sponsored by [The best china travel guide website](https://chinagotrip.com)
+
 
 ## Star History
 
