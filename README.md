@@ -35,6 +35,10 @@ k8s 作为云原生时代的操作系统，学习它的必要性不言而喻，�
 
 <h2 align=center><a href="https://guangzhengli.com/blog/zh/build-nextjs-template">支持一下最好的 Next.js 独立开发者启动模板</a></h2>
 
+<h3 align=center><a href="https://nextdevkit.com">NextDevKit</a></h3>
+
+![nextdevkit](docs/public/nextdevkit-template.png)
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=guangzhengli/k8s-tutorials&type=Date)](https://star-history.com/#guangzhengli/k8s-tutorials&Date)
