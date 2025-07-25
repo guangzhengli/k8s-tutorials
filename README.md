@@ -30,11 +30,10 @@ k8s 作为云原生时代的操作系统，学习它的必要性不言而喻，�
 
 ## Sponsor
 
-如果这份教程对你有帮助，欢迎请作者喝杯咖啡。
-https://guangzhengli.com/sponsors
+本仓库是开源的，欢迎大家 star 和 fork，如果你觉得这个仓库对你有帮助，可以通过以下方式支持我：
 
-Sponsored by [The best china travel guide website](https://chinagotrip.com)
 
+<h2 align=center><a href="https://guangzhengli.com/blog/zh/build-nextjs-template">支持一下最好的 Next.js 独立开发者启动模板</a></h2>
 
 ## Star History
 
