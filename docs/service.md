@@ -117,7 +117,7 @@ kubectl get service
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx
+  name: nginx-pod
   labels:
     app: nginx
 spec:

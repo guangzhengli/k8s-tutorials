@@ -74,15 +74,15 @@ kubectl port-forward nginx-pod 4000:80
 我们可以通过 `logs` 或者 `logs -f` 命令查看 pod 日志，可以通过 `exec -it` 进入 pod 或者调用容器命令，通过 `delete pod` 或者  `delete -f nginx.yaml` 的方式删除 pod 资源。这里可以看到 [kubectl 所有命令](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)。
 
 ```shell
-kubectl logs --follow nginx
+kubectl logs --follow nginx-pod
                               
-kubectl exec nginx -- ls
+kubectl exec nginx-pod -- ls
 
-kubectl delete pod nginx
-# pod "nginx" deleted
+kubectl delete pod nginx-pod
+# pod "nginx-pod" deleted
 
 kubectl delete -f nginx.yaml
-# pod "nginx" deleted
+# pod "nginx-pod" deleted
 ```
 
 最后，根据我们在 `container` 的那节构建的 `hellok8s:v1` 的镜像，同时参考 `nginx` pod 的资源定义，你能独自编写出  `hellok8s:v1`  Pod 的资源文件吗？并通过 `port-forward` 到本地的 `3000` 端口进行访问，最终得到字符串 `[v1] Hello, Kubernetes!`。
