@@ -1,7 +1,7 @@
 ---
 prev:
   text: 'Namespace'
-  link: 'namespaces'
+  link: 'namespace'
 next:
   text: 'Secret'
   link: 'secret'
